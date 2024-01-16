@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+    <meta charset="UTF-8">
+    <title>я пажилой человек 54 пажилых года</title>
+</head>
+
+<body>
+<h1>Schedule</h1>
+<div class="topnav">
+    <a>тут будет красивое....</a>
+</div>
+
+
+<div class="dropdown">
+    <button class="dropbtn">сиськи пиписьки</button>
+    <div class="dropdown-content">
+        <a href="#">Link 1</a>
+        <a href="#">Link 2</a>
+        <a href="#">Link 3</a>
+    </div>
+</div>
+
+<table id="schedule">
+    <thead>
+    <tr>
+        <th scope="col"></th>
+    <th scope="col">Понедельник</th>
+    <th scope="col">Вторник</th>
+    <th scope="col">Среда</th>
+    <th scope="col">Четверг</th>
+    <th scope="col">Пятница</th>
+    </tr>
+    </thead>
+
+
+
+    <tr th:each="row: ${peoples}" >//ура победа!!! теперь вместо пиплс, который у меня будет основным массивом, надо брать время
+        <th:block>
+    <td></td> // и сюда время бУхать
+        <td th:each="cell : ${peoples}" th:text="${cell}">Cell</td>
+        </th:block>
+    </tr>
+
+    <tr id="buttonRow">
+        <td colspan="1"></td>
+    </tr>
+</table>
+
+
+
+
+<script>
+    // Создадим кнопку
+    const button = document.createElement("button");
+    button.innerHTML = "зиги свастики";
+
+    // Найдем строку, в которой будет располагаться кнопка (последний элемент таблицы)
+    var buttonRow = document.getElementById("buttonRow");
+    var cell = buttonRow.cells[0]; // Берем первую ячейку в строке
+
+    // Добавим кнопку в ячейку
+    cell.appendChild(button);
+
+</script>
+
+
+</body>
+</html>
