@@ -61,6 +61,7 @@ public class ScheduleController {
 
         model.addAttribute("defautScheduleItems", defaultSchedule.getScheduleDaysValuesList());
         model.addAttribute("defaultTimes", timesList );
+        model.addAttribute("defaultDays", List.of("Пн", "Вт", "Ср", "Чт", "Пт"));
         return "index";
     }
 

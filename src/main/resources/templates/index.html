@@ -23,30 +23,29 @@
 </div>
 
 <table id="schedule">
+
     <thead>
-    <tr>
-        <th scope="col"></th>
-    <th scope="col">Понедельник</th>
-    <th scope="col">Вторник</th>
-    <th scope="col">Среда</th>
-    <th scope="col">Четверг</th>
-    <th scope="col">Пятница</th>
-    </tr>
+    <th></th>
+    <th:block th:each="days : ${defaultDays}">
+        <th th:text="${days}">Дни</th>
+    </th:block>
     </thead>
 
-
-
-    <tr th:each="row, iterStat: ${defaultTimes}" >
+    <tr th:each="iterPar, iterStat: ${defaultTimes}" >
         <th:block>
-            <td th:text="${defaultTimes[iterStat.index]}"> </td>
-        <td th:each="cell: ${defautScheduleItems}" th:text="${cell}">Cell</td> //TODO: сесть на шпагат за 15 секунд, чтобы в ячейку день/время пихался не весь план на день, а только один пункт
+            <td th:text="${iterPar}"> </td> <!--ячейка со временем -->
+        <td th:each="subjPar: ${defautScheduleItems}" th:text="${subjPar[iterStat.index]}">SubjCell</td>   <!-- выводим строку с названием предмета, соответствующую данному времени и дню -->
         </th:block>
     </tr>
 
     <tr id="buttonRow">
         <td colspan="1"></td>
     </tr>
+
 </table>
+
+
+
 
 
 
