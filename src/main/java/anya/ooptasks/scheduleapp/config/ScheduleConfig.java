@@ -11,12 +11,12 @@ import java.util.TreeMap;
 public class ScheduleConfig {
 
     @Bean
-    public SortedMap<Integer, Schedule.ScheduleItem> scheduleItemMap() {
+    public SortedMap<Integer, Schedule.ScheduleDay> daysMap() {
         return new TreeMap<>();
     }
 
     @Bean
-    public SortedMap<Integer, Object> objectMap() {
+    public SortedMap<Integer, Object> subjsMap() {
         return new TreeMap<>();
     }
 }

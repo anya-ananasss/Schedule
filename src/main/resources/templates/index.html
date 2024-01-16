@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" href="scheduleStyle.css">
     <meta charset="UTF-8">
     <title>я пажилой человек 54 пажилых года</title>
 </head>
@@ -36,10 +36,10 @@
 
 
 
-    <tr th:each="row: ${peoples}" >//ура победа!!! теперь вместо пиплс, который у меня будет основным массивом, надо брать время
+    <tr th:each="row, iterStat: ${defaultTimes}" >
         <th:block>
-    <td></td> // и сюда время бУхать
-        <td th:each="cell : ${peoples}" th:text="${cell}">Cell</td>
+            <td th:text="${defaultTimes[iterStat.index]}"> </td>
+        <td th:each="cell: ${defautScheduleItems}" th:text="${cell}">Cell</td> //TODO: сесть на шпагат за 15 секунд, чтобы в ячейку день/время пихался не весь план на день, а только один пункт
         </th:block>
     </tr>
 
