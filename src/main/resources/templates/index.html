@@ -23,18 +23,19 @@
 </div>
 
 <table id="schedule">
-
     <thead>
     <th></th>
     <th:block th:each="days : ${defaultDays}">
-        <th th:text="${days}">Дни</th>
+        <th th:text="${days}"></th>
     </th:block>
     </thead>
 
-    <tr th:each="iterPar, iterStat: ${defaultTimes}" >
+
+    <tr th:each="iterPar, iterStat: ${defaultTimes}">
         <th:block>
-            <td th:text="${iterPar}"> </td> <!--ячейка со временем -->
-        <td th:each="subjPar: ${defautScheduleItems}" th:text="${subjPar[iterStat.index]}">SubjCell</td>   <!-- выводим строку с названием предмета, соответствующую данному времени и дню -->
+            <td th:text="${iterPar}"></td> <!--ячейка со временем -->
+            <td th:each="subjPar: ${defautScheduleItems}" th:text="${subjPar[iterStat.index]}">SubjCell</td>
+            <!-- выводим строку с названием предмета, соответствующую данному времени и дню -->
         </th:block>
     </tr>
 
@@ -43,11 +44,10 @@
     </tr>
 
 </table>
-
-
-
-
-
+<div>
+    <button id="editButton">Редактировать</button>
+    <button id="saveButton">Сохранить изменения</button>
+</div>
 
 
 <script>
@@ -61,6 +61,50 @@
 
     // Добавим кнопку в ячейку
     cell.appendChild(button);
+
+    function editButtonClick() {
+        const table = document.getElementById("schedule");
+        let currCell;
+        for (let i = 1; i < table.rows.length - 1; i++) {
+            for (let j = 0; j < table.rows[0].cells.length; j++) {
+                currCell = table.rows[i].cells[j];
+//currCell.style.backgroundColor = 'lightgray';
+                const form = document.createElement("form");
+                form.action = "/submitData";
+                form.method = "post";
+                const input = document.createElement("input");
+                input.type = "text";
+                input.value = currCell.innerHTML;
+                form.appendChild(input);
+                currCell.innerHTML = "";
+                currCell.appendChild(form);
+            }
+        }
+    }
+
+    function saveButtonClick() {
+        const table = document.getElementById("schedule");
+        let currCell;
+        for (let i = 1; i < table.rows.length - 1; i++) {
+            for (let j = 0; j < table.rows[0].cells.length; j++) {
+                currCell = table.rows[i].cells[j];
+                const inputId = "input" + (i * table.rows[i].cells.length + j + 1);
+                table.rows[i].cells[j].innerHTML = document.getElementById(inputId).value;
+
+
+
+                // const inputValue = document.getElementByTagName("input").value;
+                // currCell.innerHTML = "text"
+                // document.getElementsByTagName(currCell.tagName);
+                // const value = currCell.innerHTML;
+                // currCell.appendChild(value);
+            }
+        }
+    }
+
+    document.getElementById('editButton').addEventListener('click', editButtonClick);
+    document.getElementById('saveButton').addEventListener('click', saveButtonClick);
+
 
 </script>
 

@@ -1,6 +1,9 @@
 package anya.ooptasks.scheduleapp.model;
 
 import lombok.*;
+import jakarta.persistence.Entity;
+
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ public class Schedule {
     @Setter
     @RequiredArgsConstructor
     @Component
+    @Entity
     public static class ScheduleDay {
         @NonNull
         private SortedMap<Integer, Object> day;
