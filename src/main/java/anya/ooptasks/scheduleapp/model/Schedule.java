@@ -1,5 +1,6 @@
 package anya.ooptasks.scheduleapp.model;
 
+import jakarta.persistence.Id;
 import lombok.*;
 import jakarta.persistence.Entity;
 
@@ -32,7 +33,6 @@ public class Schedule {
     @Setter
     @RequiredArgsConstructor
     @Component
-    @Entity
     public static class ScheduleDay {
         @NonNull
         private SortedMap<Integer, Object> day;
