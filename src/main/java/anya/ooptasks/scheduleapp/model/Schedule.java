@@ -6,43 +6,67 @@ import lombok.*;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
 @NoArgsConstructor
-@Component
+@Table (name = "schedule")
+@Entity
 public class Schedule {
-    Integer dayId;
-    @NonNull
-    private SortedMap<Integer, ScheduleDay> scheduleMap;
-
-//    public List<List<Object>> getScheduleDaysValuesList (){
-//        List <List<Object>> result =  new ArrayList<>(); //TODO: пока пойдет так, но потом надо бахнуть метод для поиска самого длинного дня в расписании и строить цикл уже по его длине, ставя "" на "выпадающее время" в более коротких днях
-//        for (ScheduleDay scheduleDay : scheduleMap.values()) { //берем день из расписания....//для конкретного дня создаем list из предметов, ему присвоенных
-//                result.add(new ArrayList<>(scheduleDay.getDay().values()));
-//        }
-//        return result;
-//    }
-
+    @Id
+     private Integer schedId;
+    @OneToMany(mappedBy = "general_schedule", cascade = CascadeType.ALL)
+    private List <ScheduleDay> schedule;
 
 
     @Getter
     @Setter
-   @RequiredArgsConstructor
     @NoArgsConstructor
-    @Component
-    @Table(name = "scheduleDay")
+    @Table(name = "schedule_day")
     @Entity
-    public static class ScheduleDay {
+    public class ScheduleDay {
         @Id
-        private Integer id;
-        @NonNull
-         @Transient
-        private SortedMap<Integer, Object> day; //TODO: можно и лист вместо мапы брать
+        private Integer dayId;
 
+        @OneToMany(mappedBy = "subjectId.scheduleDay", cascade = CascadeType.ALL)
+        private List <Subject> subjects;
+
+
+        @ManyToOne
+        @JoinColumn(name = "schedule")
+        private Schedule general_schedule;
+
+
+        @Getter
+        @Setter
+        @NoArgsConstructor //todo:зачем?....
+        @Table (name = "subject")
+        @Entity
+        public static class Subject {
+            @EmbeddedId
+            private SubjectId subjectId;
+
+            private String content;
+
+
+            @Getter
+            @Setter
+            @Embeddable
+            public static class SubjectId implements Serializable {
+                private LocalTime time;
+                @ManyToOne
+                @JoinColumn(name = "schedule_day_id", referencedColumnName = "dayId")
+
+                private ScheduleDay scheduleDay;
+            }
+        }
     }
+    //предмет - ПК
 }
