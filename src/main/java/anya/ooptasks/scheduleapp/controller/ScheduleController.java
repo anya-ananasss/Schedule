@@ -2,7 +2,7 @@ package anya.ooptasks.scheduleapp.controller;
 
 import anya.ooptasks.scheduleapp.model.Schedule;
 import org.springframework.stereotype.Controller;
-import anya.ooptasks.scheduleapp.service.ScheduleService;
+//import anya.ooptasks.scheduleapp.service.ScheduleService;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +15,7 @@ public class ScheduleController {
 
     private Schedule defaultSchedule;
 
-   ScheduleService service;
+//   ScheduleService service;
 
     //TODO: П/П ЗАДАЕМ В САМИХ ДНЯХ, МАССИВ НАИМЕНОВАНИЙ ВРЕМЕНИ - ВООБЩЕ ОТЕДЛЬНОЕ
     @GetMapping
@@ -40,29 +40,29 @@ public class ScheduleController {
         scheduleDayMap1.put(3, "Английский язык");
 
 
-
-        LocalTime time = LocalTime.of(8, 0);
-        for (int i = 0; i < DEFAULT_SUBJS_AMOUNT; i++) {
-            timesList.add(time.toString());
-            time = time.plusHours(1).plusMinutes(40);
-        }
-
-        for (int i = 0; i < DEFAULT_DAYS_AMOUNT; i++) {
-            if (i%2==0){
-                scheduleMap.put(i, new Schedule.ScheduleDay(scheduleDayMap0));
-            }
-            else {
-                scheduleMap.put(i, new Schedule.ScheduleDay(scheduleDayMap1));
-            }
-        }
-
-        Schedule defaultSchedule = new Schedule(scheduleMap);
-
-
-        model.addAttribute("defautScheduleItems", defaultSchedule.getScheduleDaysValuesList());
-        model.addAttribute("defaultTimes", timesList );
-        model.addAttribute("defaultDays", List.of("Пн", "Вт", "Ср", "Чт", "Пт"));
-        return "index";
+//
+//        LocalTime time = LocalTime.of(8, 0);
+//        for (int i = 0; i < DEFAULT_SUBJS_AMOUNT; i++) {
+//            timesList.add(time.toString());
+//            time = time.plusHours(1).plusMinutes(40);
+//        }
+//
+//        for (int i = 0; i < DEFAULT_DAYS_AMOUNT; i++) {
+//            if (i%2==0){
+//                scheduleMap.put(i, new Schedule.ScheduleDay(scheduleDayMap0));
+//            }
+//            else {
+//                scheduleMap.put(i, new Schedule.ScheduleDay(scheduleDayMap1));
+//            }
+//        }
+//
+//        Schedule defaultSchedule = new Schedule(scheduleMap);
+//
+//
+//        model.addAttribute("defautScheduleItems", defaultSchedule.getScheduleDaysValuesList());
+//        model.addAttribute("defaultTimes", timesList );
+//        model.addAttribute("defaultDays", List.of("Пн", "Вт", "Ср", "Чт", "Пт"));
+       return "index";
     }
 
 //    @PostMapping (value="/register", method=RequestMethod.POST)

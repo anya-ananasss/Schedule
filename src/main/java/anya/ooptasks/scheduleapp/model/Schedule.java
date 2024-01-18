@@ -1,8 +1,7 @@
 package anya.ooptasks.scheduleapp.model;
 
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
-import jakarta.persistence.Entity;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.stereotype.Component;
@@ -14,28 +13,36 @@ import java.util.SortedMap;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@NoArgsConstructor
 @Component
 public class Schedule {
+    Integer dayId;
     @NonNull
     private SortedMap<Integer, ScheduleDay> scheduleMap;
 
-    public List<List<Object>> getScheduleDaysValuesList (){
-        List <List<Object>> result =  new ArrayList<>(); //TODO: пока пойдет так, но потом надо бахнуть метод для поиска самого длинного дня в расписании и строить цикл уже по его длине, ставя "" на "выпадающее время" в более коротких днях
-        for (ScheduleDay scheduleDay : scheduleMap.values()) { //берем день из расписания....//для конкретного дня создаем list из предметов, ему присвоенных
-                result.add(new ArrayList<>(scheduleDay.getDay().values()));
-        }
-        return result;
-    }
+//    public List<List<Object>> getScheduleDaysValuesList (){
+//        List <List<Object>> result =  new ArrayList<>(); //TODO: пока пойдет так, но потом надо бахнуть метод для поиска самого длинного дня в расписании и строить цикл уже по его длине, ставя "" на "выпадающее время" в более коротких днях
+//        for (ScheduleDay scheduleDay : scheduleMap.values()) { //берем день из расписания....//для конкретного дня создаем list из предметов, ему присвоенных
+//                result.add(new ArrayList<>(scheduleDay.getDay().values()));
+//        }
+//        return result;
+//    }
 
 
 
     @Getter
     @Setter
-    @RequiredArgsConstructor
+   @RequiredArgsConstructor
+    @NoArgsConstructor
     @Component
+    @Table(name = "scheduleDay")
+    @Entity
     public static class ScheduleDay {
+        @Id
+        private Integer id;
         @NonNull
-        private SortedMap<Integer, Object> day;
+         @Transient
+        private SortedMap<Integer, Object> day; //TODO: можно и лист вместо мапы брать
 
     }
 }
