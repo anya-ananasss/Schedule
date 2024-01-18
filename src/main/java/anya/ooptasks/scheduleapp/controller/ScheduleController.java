@@ -1,76 +1,113 @@
 package anya.ooptasks.scheduleapp.controller;
 
 import anya.ooptasks.scheduleapp.model.Schedule;
-import org.springframework.stereotype.Controller;
+import anya.ooptasks.scheduleapp.service.ScheduleDayService;
+
+import anya.ooptasks.scheduleapp.service.ScheduleService;
+import lombok.AllArgsConstructor;
 //import anya.ooptasks.scheduleapp.service.ScheduleService;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-@Controller
+@RestController
+@AllArgsConstructor
 public class ScheduleController {
 
-    private Schedule defaultSchedule;
+    ScheduleService service;
 
-//   ScheduleService service;
-
-    //TODO: П/П ЗАДАЕМ В САМИХ ДНЯХ, МАССИВ НАИМЕНОВАНИЙ ВРЕМЕНИ - ВООБЩЕ ОТЕДЛЬНОЕ
     @GetMapping
-    String getDefaultSchedule (Model model){
-        int DEFAULT_DAYS_AMOUNT = 5;
-        int DEFAULT_SUBJS_AMOUNT = 4;
-
-        SortedMap <Integer, Schedule.ScheduleDay> scheduleMap = new TreeMap<>();
-        SortedMap <Integer, Object> scheduleDayMap0 = new TreeMap<>();
-        SortedMap <Integer, Object> scheduleDayMap1 = new TreeMap<>();
-        List <String> timesList = new ArrayList<>();
-
-        scheduleDayMap0.put(0, "ТФКП");
-        scheduleDayMap0.put(1, "Дискретная математика");
-        scheduleDayMap0.put(2, "Физкультура");
-        scheduleDayMap0.put(3, "ООП");
-
-
-        scheduleDayMap1.put(0, "Алгем");
-        scheduleDayMap1.put(1, "КГиГ");
-        scheduleDayMap1.put(2, "Политика");
-        scheduleDayMap1.put(3, "Английский язык");
-
-
-//
-//        LocalTime time = LocalTime.of(8, 0);
-//        for (int i = 0; i < DEFAULT_SUBJS_AMOUNT; i++) {
-//            timesList.add(time.toString());
-//            time = time.plusHours(1).plusMinutes(40);
-//        }
-//
-//        for (int i = 0; i < DEFAULT_DAYS_AMOUNT; i++) {
-//            if (i%2==0){
-//                scheduleMap.put(i, new Schedule.ScheduleDay(scheduleDayMap0));
-//            }
-//            else {
-//                scheduleMap.put(i, new Schedule.ScheduleDay(scheduleDayMap1));
-//            }
-//        }
-//
-//        Schedule defaultSchedule = new Schedule(scheduleMap);
-//
-//
-//        model.addAttribute("defautScheduleItems", defaultSchedule.getScheduleDaysValuesList());
-//        model.addAttribute("defaultTimes", timesList );
-//        model.addAttribute("defaultDays", List.of("Пн", "Вт", "Ср", "Чт", "Пт"));
-       return "index";
+    public List<Schedule> findAllSchedules() {
+        return service.findAllSchedules();
     }
 
-//    @PostMapping (value="/register", method=RequestMethod.POST)
-//    public String saveNewSchedule
+    @PostMapping("save_schedule")
+    public String saveSchedule(@RequestBody Schedule schedule) {
+        service.saveSchedule(schedule);
+        return "Schedule successfully saved";
+    }
 
-//TODO БЛИЖАЙШИЕ: НАСТРОИТЬ ОТПРАВКУ (СОХРАНЕНИЕ) ИЗМЕНЕНИЙ, НАПИСАТЬ (ЖМИТЕ ЭНТР ЧТОБЫ СОХРАНИТЬ ИЗМЕНЕНИЯ), СДЕЛАТЬ ЧТОБЫ ПОСЛЕ СУБМИТ ДАТА МЫ ВОЗВРАЩАЛИСЬ НА ТУ ЖЕ СТРАНИЦУ; ВОЗМОЖНО СДЕЛАТЬ КНОПКУ СОХРАНИТЬ ИЗМЕНЕНИЯ;
-    //TODO: СДЕЛАТЬ КНОПКУ ДЛЯ УДАЛЕНИЯ/ДОБАВЛЕНИЯ ДНЕЙ НА ОСНОВЕ МАССИВА ДНЕЙ (ДНЕЙ 7 - "+" УХОДИТ, ДНЕЙ 0 - "-" УХОДИТ)
-    //TODO: СДЕЛАТЬ УДАЛЕНИЕ/ДОБАВЛЕНИЕ ВРЕМЕНИ; "-" ПРОПАДАЕТ ЕСЛИ СТРОЧЕК ВРЕМЕНИ 0
-
+    @PutMapping("update_schedule")
+    public Schedule updateSchedule(@RequestBody Schedule schedule) {
+        return service.updateSchedule(schedule);
+    }
 }
+
+
+
+
+
+//
+////    @GetMapping
+////    public List<Schedule> findAllSchedules() {
+////        return service.findAllSchedules();
+////    }
+////
+////
+////    @PostMapping
+////    public String addNewSchedule(@RequestBody Schedule schedule) {
+////        service.addNewSchedule(schedule);
+////        return "Student successfully saved";
+////    }
+//
+//
+//
+//    @GetMapping
+//    public Optional<Schedule> initTestSchedule (){
+//        schedule.setSchedId(0);
+//        schedule.setSchedule_days(new ArrayList<>());
+//
+//
+//        Schedule.ScheduleDay newDay = new Schedule.ScheduleDay();
+//        newDay.setGeneral_schedule(schedule);
+//        newDay.setDayId(0);
+//
+//
+//        Schedule.ScheduleDay.Subject subject1 = new Schedule.ScheduleDay.Subject();
+//        Schedule.ScheduleDay.Subject subject2 = new Schedule.ScheduleDay.Subject();
+//        Schedule.ScheduleDay.Subject subject3 = new Schedule.ScheduleDay.Subject();
+//
+//        Schedule.ScheduleDay.Subject.SubjectId subjectId1 =
+//                new Schedule.ScheduleDay.Subject.SubjectId();
+//        Schedule.ScheduleDay.Subject.SubjectId subjectId2 =
+//                new Schedule.ScheduleDay.Subject.SubjectId();
+//        Schedule.ScheduleDay.Subject.SubjectId subjectId3 =
+//                new Schedule.ScheduleDay.Subject.SubjectId();
+//
+//        subject1.setContent("ТФКП");
+//        subject2.setContent("Алгем");
+//        subject3.setContent("Дискретная атематика");
+//
+//
+//        subjectId1.setTime(LocalTime.of(8,0));
+//        subjectId2.setTime(LocalTime.of(9,45));
+//        subjectId3.setTime(LocalTime.of(11,20));
+//
+//
+//
+//        subject1.setSubjectId(subjectId1);
+//        subject2.setSubjectId(subjectId2);
+//        subject3.setSubjectId(subjectId3);
+//
+//        List <Schedule.ScheduleDay.Subject> subjects = Arrays.asList(subject1, subject2, subject3);
+//
+//        for (int i = 0; i < subjects.size(); i++) {
+//            subjects.get(i).getSubjectId().setScheduleDay(newDay);
+//        }
+//        newDay.setSubjects(subjects);
+//
+//
+//        schedule.setSchedule_days(Arrays.asList(newDay));
+//
+//
+//
+//        service.addNewTimeLine(schedule, LocalTime.of(13, 25));
+//        return service.findById(0);
+//    }
+//}
+//
+//
+//
+//
 

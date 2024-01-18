@@ -19,4 +19,8 @@ public class ScheduleConfig {
     public SortedMap<Integer, Object> subjsMap() {
         return new TreeMap<>();
     }
+    @Bean
+    public Schedule schedule (){
+        return new Schedule();
+    };
 }

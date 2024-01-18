@@ -1,116 +1,79 @@
-//package anya.ooptasks.scheduleapp.service;
-//
-//import anya.ooptasks.scheduleapp.model.Schedule;
-//import lombok.NonNull;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.stereotype.Service;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.SortedMap;
-//import java.util.TreeMap;
-//
-//@Service
-//@RequiredArgsConstructor
-//public class ScheduleService {
-//
-//    @NonNull
-//    Schedule schedule = new Schedule(new TreeMap<>());
-//    SortedMap<Integer, Schedule.ScheduleDay> scheduleMap = schedule.getScheduleMap();
-//
-//    public ScheduleItemService scheduleItemService = new ScheduleItemService();
-//
-//
-//    private void addNewDay(int item, int defaultRowsAmount) { //update
-//        SortedMap<Integer, Object> emptyDay = new TreeMap<>();
-//        for (int i = 0; i < defaultRowsAmount; i++) {
-//            emptyDay.values().add("");
-//            emptyDay.keySet().add(i);
-//        }
-//        this.scheduleMap.put(item, new Schedule.ScheduleDay(emptyDay));
-//    }
-//
-//    private void removeChosenDay(int item) {//пусть рядом с названием каждого дня будет минус, пусть при нажатии на этот минус вываливается окно с требованием подтверждения или делаю анду/реду, как гпт предлагал, тут уж что легче будет и на что времени хватит4
-//        this.scheduleMap.remove(item);
-//    }//update
-//
-//    private void addTimeRows() {//update
-//        for (Schedule.ScheduleDay currDay : this.scheduleMap.values()) {
-//            scheduleItemService.addTimeRow(currDay, this.scheduleMap.size() - 1);
-//        }
-//    }
-//
-//    private void removeTimeRows() { //update
-//        for (Schedule.ScheduleDay currDay : this.scheduleMap.values()) {
-//            scheduleItemService.removeTimeRow(currDay, this.scheduleMap.size() - 1);
-//        }
-//    }
-//
-//
-//    public Schedule initNewSchedule() { //post
-//        this.schedule.setScheduleMap(new TreeMap<>());
-//        return schedule;
-//    } //create
-//
-//    public void removeSchedule() { //delete
-//        this.schedule.setScheduleMap(null);
-//    }
-//
-//    @Service
-//    @RequiredArgsConstructor
-//    public class ScheduleItemService {
-//        Schedule.ScheduleDay scheduleDay = new Schedule.ScheduleDay(new TreeMap<>());
-//        SortedMap<Integer, Object> day = scheduleDay.getDay();
-//
-//        private void addInfoToTime(int row, String info) {
-//            this.day.put(row, info);
-//        }
-//
-//        public void addTimeRow(Schedule.ScheduleDay scheduleDay, int row) {
-//            scheduleDay.getDay().put(row, "");
-//
-//        }
-//
-//        public void removeTimeRow(Schedule.ScheduleDay scheduleDay, int row) {
-//            scheduleDay.getDay().remove(row);
-//        }
-//
-//        public void addNumerator(int row) {
-//            String prevValue = (String) this.day.get(row);
-//            List<String> numList = new ArrayList<>();
-//            numList.add("");
-//            numList.add(prevValue);
-//            this.day.put(row, numList);
-//
-//        }
-//
-//        public void removeNumerator(int row) {
-//            ArrayList numList = (ArrayList) this.day.get(row);
-//            String valueToSave = (String) numList.get(1); //получаем нижнее значение
-//            this.day.put(row, valueToSave);
-//
-//        }
-//
-//        public void addDenumerator(int row) {
-//            String prevValue = (String) this.day.get(row);
-//            List<String> denumList = new ArrayList<>();
-//            denumList.add(prevValue);
-//            denumList.add("");
-//            this.day.put(row, denumList);
-//        }
-//
-//        public void removeDenumerator(int row) {
-//            ArrayList numList = (ArrayList) this.day.get(row);
-//            String valueToSave = (String) numList.get(0); //получаем верхнее значение
-//            this.day.put(row, valueToSave);
-//        }
-//    }
-//}
+package anya.ooptasks.scheduleapp.service;
 
-//        //нумератор числитель, денумератор - знаменатель
+import anya.ooptasks.scheduleapp.model.Schedule;
+import anya.ooptasks.scheduleapp.repository.ScheduleRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
 
-//    операции создания — создание ресурса через метод POST ;
-//    операции чтения — возврат представления ресурса через метод GET ;
-//    операции редактирования — перезапись ресурса через метод PUT или редактирование через PATCH ;
-//    операции удаления — удаление ресурса через метод DELETE .
+@Service
+@AllArgsConstructor
+public class ScheduleService {
+
+    private final ScheduleRepository repository;
+
+    public void saveSchedule (Schedule newSchedule){
+        repository.save(newSchedule);
+    }
+
+    public Schedule updateSchedule(Schedule updatedSchedule) {
+        return repository.save(updatedSchedule);
+    }
+    public void deleteSchedule (Integer scheduleId) {
+        repository.deleteById(scheduleId);
+    }
+
+    public List<Schedule> findAllSchedules (){
+        return repository.findAll();
+    }
+}
+
+//    SubjectService subjectService;
+//    ScheduleDayService scheduleDayService;
+//
+//    public void addNewSchedule (Schedule newSchedule){
+//        repository.save(newSchedule);
+//    }
+//    public void deleteSchedule(Schedule schedule){
+//        repository.delete(schedule);
+//    }
+//
+//    public void addNewTimeLine (Schedule schedule, LocalTime newTime){
+//        List<Schedule.ScheduleDay> daysInSchedule = schedule.getSchedule_days();
+//        Schedule.ScheduleDay.Subject newEmptySubject =
+//                new Schedule.ScheduleDay.Subject();
+//        newEmptySubject.setContent("");
+//        Schedule.ScheduleDay.Subject.SubjectId newEmptySubjectId =
+//                new Schedule.ScheduleDay.Subject.SubjectId();
+//        newEmptySubjectId.setTime(newTime);
+//            for (int i = 0; i < daysInSchedule.size(); i++) {
+//                Schedule.ScheduleDay currDay = daysInSchedule.get(i);
+//                newEmptySubjectId.setScheduleDay(currDay);
+//                newEmptySubject.setSubjectId(newEmptySubjectId);
+//                subjectService.saveSubject(newEmptySubject);
+//            }
+//    }
+//    public void removeLastTimeLine (Schedule schedule){
+//        List<Schedule.ScheduleDay> daysInSchedule = schedule.getSchedule_days();
+//        Schedule.ScheduleDay.Subject.SubjectId subjectToDeleteId =
+//                new Schedule.ScheduleDay.Subject.SubjectId();
+//        for (int i = 0; i < daysInSchedule.size(); i++) {
+//            Schedule.ScheduleDay currDay = daysInSchedule.get(i);
+//            subjectToDeleteId.setTime(scheduleDayService.findLastTimeLineInDay(currDay));
+//            subjectToDeleteId.setScheduleDay(currDay);
+//            subjectService.deleteSubject(subjectToDeleteId);
+//        }
+//    }
+//    public List <Schedule> findAllSchedules(){
+//        return repository.findAll();
+//    }
+//    public Optional<Schedule> findById (Integer id){
+//        return repository.findById(id);
+//    }
+//    public void addNewScheduleDay (Schedule schedule, Schedule.ScheduleDay newDay){
+//        List <Schedule.ScheduleDay> days = schedule.getSchedule_days();
+//        days.add(newDay);
+//        repository.save(schedule);
+//    }
+
