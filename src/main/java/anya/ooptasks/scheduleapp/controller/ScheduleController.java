@@ -1,113 +1,111 @@
 package anya.ooptasks.scheduleapp.controller;
 
 import anya.ooptasks.scheduleapp.model.Schedule;
-import anya.ooptasks.scheduleapp.service.ScheduleDayService;
 
 import anya.ooptasks.scheduleapp.service.ScheduleService;
 import lombok.AllArgsConstructor;
-//import anya.ooptasks.scheduleapp.service.ScheduleService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@RestController
+@Controller
 @AllArgsConstructor
 public class ScheduleController {
 
     ScheduleService service;
 
     @GetMapping
-    public List<Schedule> findAllSchedules() {
-        return service.findAllSchedules();
+    public String findAllSchedules(Model model) {
+        List<Schedule> mySchedule = service.findAllSchedules();
+        if (!mySchedule.isEmpty()) {
+            Schedule scheduleForWork = mySchedule.get(0);
+            List<String> days = getDays(scheduleForWork);
+            List<String> times = getTimes(scheduleForWork);
+            SortedMap <Integer, List<String>> scheduleCellsItems = getScheduleItems(scheduleForWork);
+
+
+            model.addAttribute("defaultDays", days);
+            model.addAttribute("defaultTimes", times);
+            model.addAttribute("defaultScheduleItems", scheduleCellsItems.values());
+
+        }
+        return "index";
+    }
+
+    private static SortedMap <Integer, List<String>> getScheduleItems(Schedule scheduleForWork) {
+        SortedMap <Integer, List <String>> scheduleCellsItems = new TreeMap<>();
+        List <Schedule.ScheduleDay> auxDaysList = scheduleForWork.getScheduleDays();
+        for (int i = 0; i < scheduleForWork.getScheduleDays().size(); i++) {
+            Schedule.ScheduleDay auxCurrDay = auxDaysList.get(i);
+            List <Schedule.ScheduleDay.Subject> auxCurrDaySubjects
+                    = auxCurrDay.getSubjects();
+            List <String> innerList = new ArrayList<>();
+            scheduleCellsItems.put(i, innerList);
+            for (int j = 0; j < auxCurrDaySubjects.size(); j++) {
+              String toAdd = auxCurrDaySubjects.get(j).getContent();
+              innerList.add(toAdd);
+              scheduleCellsItems.put(i, innerList);
+            }
+        }
+        return scheduleCellsItems;
+    }
+
+    private static List<String> getDays(Schedule scheduleForWork) {
+        int daysAmount = scheduleForWork.getScheduleDays().size();
+        List<String> days = new ArrayList<>();
+        for (int i = 0; i < daysAmount; i++) {
+            switch (i) {
+                case 0:
+                    days.add(i, "Понедельник");
+                    break;
+                case 1:
+                    days.add(i, "Вторник");
+                    break;
+                case 2:
+                    days.add(i, "Среда");
+                    break;
+                case 3:
+                    days.add(i, "Четверг");
+                    break;
+                case 4:
+                    days.add(i, "Пятница");
+                    break;
+                case 5:
+                    days.add(i, "Суббота");
+                    break;
+                case 6:
+                    days.add(i, "Воскресенье");
+                    break;
+            }
+        }
+        return days;
+    }
+
+    private static List<String> getTimes(Schedule scheduleForWork) {
+        List<String> times = new ArrayList<>();
+        List<Schedule.ScheduleDay> auxDaysList = scheduleForWork.getScheduleDays();
+        int timeRowsAmount = auxDaysList.get(0).getSubjects().size();
+        for (int i = 0; i < timeRowsAmount; i++) {
+            LocalTime auxCurrTimeRow =
+                    auxDaysList.get(0).getSubjects().get(i).getSubjectId().getTime();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            String toAdd = auxCurrTimeRow.format(formatter);
+            times.add(i, toAdd);
+        }
+        return times;
     }
 
     @PostMapping("save_schedule")
-    public String saveSchedule(@RequestBody Schedule schedule) {
+    public void saveSchedule(@RequestBody Schedule schedule) {
         service.saveSchedule(schedule);
-        return "Schedule successfully saved";
     }
 
-    @PutMapping("update_schedule")
+    @PutMapping
     public Schedule updateSchedule(@RequestBody Schedule schedule) {
         return service.updateSchedule(schedule);
     }
 }
-
-
-
-
-
-//
-////    @GetMapping
-////    public List<Schedule> findAllSchedules() {
-////        return service.findAllSchedules();
-////    }
-////
-////
-////    @PostMapping
-////    public String addNewSchedule(@RequestBody Schedule schedule) {
-////        service.addNewSchedule(schedule);
-////        return "Student successfully saved";
-////    }
-//
-//
-//
-//    @GetMapping
-//    public Optional<Schedule> initTestSchedule (){
-//        schedule.setSchedId(0);
-//        schedule.setSchedule_days(new ArrayList<>());
-//
-//
-//        Schedule.ScheduleDay newDay = new Schedule.ScheduleDay();
-//        newDay.setGeneral_schedule(schedule);
-//        newDay.setDayId(0);
-//
-//
-//        Schedule.ScheduleDay.Subject subject1 = new Schedule.ScheduleDay.Subject();
-//        Schedule.ScheduleDay.Subject subject2 = new Schedule.ScheduleDay.Subject();
-//        Schedule.ScheduleDay.Subject subject3 = new Schedule.ScheduleDay.Subject();
-//
-//        Schedule.ScheduleDay.Subject.SubjectId subjectId1 =
-//                new Schedule.ScheduleDay.Subject.SubjectId();
-//        Schedule.ScheduleDay.Subject.SubjectId subjectId2 =
-//                new Schedule.ScheduleDay.Subject.SubjectId();
-//        Schedule.ScheduleDay.Subject.SubjectId subjectId3 =
-//                new Schedule.ScheduleDay.Subject.SubjectId();
-//
-//        subject1.setContent("ТФКП");
-//        subject2.setContent("Алгем");
-//        subject3.setContent("Дискретная атематика");
-//
-//
-//        subjectId1.setTime(LocalTime.of(8,0));
-//        subjectId2.setTime(LocalTime.of(9,45));
-//        subjectId3.setTime(LocalTime.of(11,20));
-//
-//
-//
-//        subject1.setSubjectId(subjectId1);
-//        subject2.setSubjectId(subjectId2);
-//        subject3.setSubjectId(subjectId3);
-//
-//        List <Schedule.ScheduleDay.Subject> subjects = Arrays.asList(subject1, subject2, subject3);
-//
-//        for (int i = 0; i < subjects.size(); i++) {
-//            subjects.get(i).getSubjectId().setScheduleDay(newDay);
-//        }
-//        newDay.setSubjects(subjects);
-//
-//
-//        schedule.setSchedule_days(Arrays.asList(newDay));
-//
-//
-//
-//        service.addNewTimeLine(schedule, LocalTime.of(13, 25));
-//        return service.findById(0);
-//    }
-//}
-//
-//
-//
-//
-

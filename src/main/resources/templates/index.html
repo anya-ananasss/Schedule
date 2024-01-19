@@ -1,113 +1,89 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="ru" xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--    <link rel="stylesheet" href="scheduleStyle.css">-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title>я пажилой человек 54 пажилых года</title>-->
-<!--</head>-->
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="scheduleStyle.css">
+    <meta charset="UTF-8">
+    <title>расписание</title>
+</head>
 
-<!--<body>-->
-<!--<h1>Schedule</h1>-->
-<!--<div class="topnav">-->
-<!--    <a>тут будет красивое....</a>-->
-<!--</div>-->
+<body>
+<h1>Schedule</h1>
+<div class="topnav">
+    <a>тут будет красивое....</a>
+</div>
 
-
-<!--<div class="dropdown">-->
-<!--    <button class="dropbtn">сиськи пиписьки</button>-->
-<!--    <div class="dropdown-content">-->
-<!--        <a href="#">Link 1</a>-->
-<!--        <a href="#">Link 2</a>-->
-<!--        <a href="#">Link 3</a>-->
-<!--    </div>-->
-<!--</div>-->
-
-<!--<table id="schedule">-->
-<!--    <thead>-->
-<!--    <th></th>-->
-<!--    <th:block th:each="days : ${defaultDays}">-->
-<!--        <th th:text="${days}"></th>-->
-<!--    </th:block>-->
-<!--    </thead>-->
+<table id="schedule">
+    <thead>
+    <th></th>
+    <th:block th:each="days : ${defaultDays}">
+        <th th:text="${days}"></th>
+    </th:block>
+    </thead>
 
 
-<!--    <tr th:each="iterPar, iterStat: ${defaultTimes}">-->
-<!--        <th:block>-->
-<!--            <td th:text="${iterPar}"></td> &lt;!&ndash;ячейка со временем &ndash;&gt;-->
-<!--            <td th:each="subjPar: ${defautScheduleItems}" th:text="${subjPar[iterStat.index]}">SubjCell</td>-->
-<!--            &lt;!&ndash; выводим строку с названием предмета, соответствующую данному времени и дню &ndash;&gt;-->
-<!--        </th:block>-->
-<!--    </tr>-->
+    <tr th:each="iterPar, iterStat: ${defaultTimes}">
+        <th:block>
+            <td th:text="${iterPar}"></td> <!--ячейка со временем -->
+            <td th:each="subjPar: ${defaultScheduleItems}" th:text="${subjPar[iterStat.index]}">SubjCell</td>
+            <!-- выводим строку с названием предмета, соответствующую данному времени и дню -->
+        </th:block>
+    </tr>
 
-<!--    <tr id="buttonRow">-->
-<!--        <td colspan="1"></td>-->
-<!--    </tr>-->
+    <tr id="buttonRow">
+        <td colspan="1"></td>
+    </tr>
 
-<!--</table>-->
-<!--<div>-->
-<!--    <button id="editButton">Редактировать</button>-->
-<!--    <button id="saveButton">Сохранить изменения</button>-->
-<!--</div>-->
-
-
-<!--<script>-->
-<!--    // Создадим кнопку-->
-<!--    const button = document.createElement("button");-->
-<!--    button.innerHTML = "зиги свастики";-->
-
-<!--    // Найдем строку, в которой будет располагаться кнопка (последний элемент таблицы)-->
-<!--    var buttonRow = document.getElementById("buttonRow");-->
-<!--    var cell = buttonRow.cells[0]; // Берем первую ячейку в строке-->
-
-<!--    // Добавим кнопку в ячейку-->
-<!--    cell.appendChild(button);-->
-
-<!--    function editButtonClick() {-->
-<!--        const table = document.getElementById("schedule");-->
-<!--        let currCell;-->
-<!--        for (let i = 1; i < table.rows.length - 1; i++) {-->
-<!--            for (let j = 0; j < table.rows[0].cells.length; j++) {-->
-<!--                currCell = table.rows[i].cells[j];-->
-<!--//currCell.style.backgroundColor = 'lightgray';-->
-<!--                const form = document.createElement("form");-->
-<!--                form.action = "/submitData";-->
-<!--                form.method = "post";-->
-<!--                const input = document.createElement("input");-->
-<!--                input.type = "text";-->
-<!--                input.value = currCell.innerHTML;-->
-<!--                form.appendChild(input);-->
-<!--                currCell.innerHTML = "";-->
-<!--                currCell.appendChild(form);-->
-<!--            }-->
-<!--        }-->
-<!--    }-->
-
-<!--    function saveButtonClick() {-->
-<!--        const table = document.getElementById("schedule");-->
-<!--        let currCell;-->
-<!--        for (let i = 1; i < table.rows.length - 1; i++) {-->
-<!--            for (let j = 0; j < table.rows[0].cells.length; j++) {-->
-<!--                currCell = table.rows[i].cells[j];-->
-<!--                const inputId = "input" + (i * table.rows[i].cells.length + j + 1);-->
-<!--                table.rows[i].cells[j].innerHTML = document.getElementById(inputId).value;-->
+</table>
+<div>
+    <button id="editButton">Редактировать</button>
+    <button id="saveButton">Сохранить изменения</button>
+</div>
 
 
+<script>
+    function editButtonClick() {
+        const table = document.getElementById("schedule");
+        let currCell;
+        for (let i = 1; i < table.rows.length - 1; i++) {
+            for (let j = 0; j < table.rows[0].cells.length; j++) {
+                currCell = table.rows[i].cells[j];
+                const form = document.createElement("form");
+                form.action = "";
+                form.method = "put";
+                const input = document.createElement("input");
+                input.type = "text";
+                input.value = currCell.innerHTML;
+                form.appendChild(input);
+                currCell.innerHTML = "";
+                currCell.appendChild(form);
+            }
+        }
+    }
 
-<!--                // const inputValue = document.getElementByTagName("input").value;-->
-<!--                // currCell.innerHTML = "text"-->
-<!--                // document.getElementsByTagName(currCell.tagName);-->
-<!--                // const value = currCell.innerHTML;-->
-<!--                // currCell.appendChild(value);-->
-<!--            }-->
-<!--        }-->
-<!--    }-->
+    function saveButtonClick() {
+        const table = document.getElementById("schedule");
+        let currCell;
+        let scheduleData = [];
+        let input, value;
+        for (let i = 1; i < table.rows.length - 1; i++) {
+            let scheduleDay = [];
+            for (let j = 0; j < table.rows[0].cells.length; j++) {
+                currCell = table.rows[i].cells[j];
+                input = document.getElementById("input");
+                value = input.value;
+                scheduleDay.push(value);
+            }
+            scheduleData.push(scheduleDay);
+        }
 
-<!--    document.getElementById('editButton').addEventListener('click', editButtonClick);-->
-<!--    document.getElementById('saveButton').addEventListener('click', saveButtonClick);-->
+        fetch(url = 'http://localhost:8080', method = 'PUT', body = JSON.stringify(scheduleData))
+            .then(response => console.log(response.status));
+    }
+
+    document.getElementById('editButton').addEventListener('click', editButtonClick);
+    document.getElementById('saveButton').addEventListener('click', saveButtonClick);
 
 
-<!--</script>-->
-
-
-<!--</body>-->
-<!--</html>-->
+</script>
+</body>
+</html>

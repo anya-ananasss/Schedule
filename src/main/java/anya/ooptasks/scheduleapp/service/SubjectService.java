@@ -13,8 +13,6 @@ import java.util.List;
 public class SubjectService {
     private final SubjectRepository repository;
 
-    //TODO: что мы можем сделать с сабджектами? удалить предмет, добавить предмет, изменить предмет.
-
     public void saveSubject (Schedule.ScheduleDay.Subject newSubject){
         repository.save(newSubject);
     }

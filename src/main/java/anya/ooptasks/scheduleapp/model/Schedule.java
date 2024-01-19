@@ -1,5 +1,7 @@
 package anya.ooptasks.scheduleapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,12 +16,11 @@ import java.util.List;
 @Entity
 public class Schedule {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer schedId;
+    private Integer scheduleId;
 
-
-    @OneToMany(mappedBy = "general_schedule", cascade = CascadeType.ALL)
-    private List <ScheduleDay> schedule_days;
+    @JsonManagedReference
+    @OneToMany(mappedBy = "generalSchedule", cascade = CascadeType.ALL)
+    private List <ScheduleDay> scheduleDays;
 
 
     @Getter
@@ -29,21 +30,21 @@ public class Schedule {
     @Entity
     public static class ScheduleDay {
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Integer dayId;
+
 
         @OneToMany(mappedBy = "subjectId.scheduleDay", cascade = CascadeType.ALL)
         private List <Subject> subjects;
 
-
+        @JsonBackReference
         @ManyToOne
-        @JoinColumn(name = "schedule_id")
-        private Schedule general_schedule;
+        @JoinColumn(name = "schedule_id", referencedColumnName = "scheduleId")
+        private Schedule generalSchedule;
 
 
         @Getter
         @Setter
-        @NoArgsConstructor //todo:зачем?....
+        @NoArgsConstructor
         @Table (name = "subject")
         @Entity
         public static class Subject {
@@ -58,26 +59,11 @@ public class Schedule {
             public static class SubjectId implements Serializable {
                 private LocalTime time;
 
+                @JsonBackReference
                 @ManyToOne
                 @JoinColumn(name = "schedule_day_id", referencedColumnName = "dayId")
                 private ScheduleDay scheduleDay;
             }
         }
     }
-    //предмет - ПК
-
-    //ДЖИСОН ЗАПРОС КОТОРЫЙ РАБОТАЕТ НА DAYS:
-  //  {
-//        "dayId": 1,
-//            "subjects": [
-//        {
-//            "subjectId": {
-//            "time": "08:00:00",
-//                    "scheduleDay": {
-//                "dayId": 1
-//            }
-//        },
-//            "content": "Computer Science"
-//        }
-    // господи помоги :")
 }
