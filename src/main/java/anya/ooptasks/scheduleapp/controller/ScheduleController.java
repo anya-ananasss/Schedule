@@ -90,10 +90,8 @@ public class ScheduleController {
         List<Schedule.ScheduleDay> auxDaysList = scheduleForWork.getScheduleDays();
         int timeRowsAmount = auxDaysList.get(0).getSubjects().size();
         for (int i = 0; i < timeRowsAmount; i++) {
-            LocalTime auxCurrTimeRow =
+            String toAdd =
                     auxDaysList.get(0).getSubjects().get(i).getSubjectId().getTime();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-            String toAdd = auxCurrTimeRow.format(formatter);
             times.add(i, toAdd);
         }
         return times;

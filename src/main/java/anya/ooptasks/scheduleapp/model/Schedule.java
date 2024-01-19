@@ -57,7 +57,7 @@ public class Schedule {
             @Setter
             @Embeddable
             public static class SubjectId implements Serializable {
-                private LocalTime time;
+                private String time;
 
                 @JsonBackReference
                 @ManyToOne
