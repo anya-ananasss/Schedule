@@ -17,7 +17,6 @@ import java.util.*;
 public class ScheduleController {
 
     ScheduleService service;
-
     @GetMapping
     public String findAllSchedules(Model model) {
         List<Schedule> mySchedule = service.findAllSchedules();
@@ -97,7 +96,7 @@ public class ScheduleController {
         return times;
     }
 
-    @PostMapping("save_schedule")
+    @PostMapping
     public void saveSchedule(@RequestBody Schedule schedule) {
         service.saveSchedule(schedule);
     }

@@ -24,7 +24,7 @@
     <tr th:each="iterPar, iterStat: ${defaultTimes}">
         <th:block>
             <td th:text="${iterPar}"></td> <!--ячейка со временем -->
-            <td th:each="subjPar: ${defaultScheduleItems}" th:text="${subjPar[iterStat.index]}">SubjCell</td>
+            <td th:each="subjPar: ${defaultScheduleItems}" th:text="${subjPar[iterStat.index]}"></td>
             <!-- выводим строку с названием предмета, соответствующую данному времени и дню -->
         </th:block>
     </tr>
@@ -40,7 +40,7 @@
     function editButtonClick() {
         const table = document.getElementById("schedule");
         let currCell;
-        for (let i = 1; i < table.rows.length - 1; i++) {
+        for (let i = 1; i < table.rows.length; i++) {
             for (let j = 0; j < table.rows[0].cells.length; j++) {
                 currCell = table.rows[i].cells[j];
                 const form = document.createElement("form");
