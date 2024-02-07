@@ -20,50 +20,5 @@ public class Schedule {
 
     @JsonManagedReference
     @OneToMany(mappedBy = "generalSchedule", cascade = CascadeType.ALL)
-    private List <ScheduleDay> scheduleDays;
-
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @Table(name = "schedule_day")
-    @Entity
-    public static class ScheduleDay {
-        @Id
-        private Integer dayId;
-
-
-        @OneToMany(mappedBy = "subjectId.scheduleDay", cascade = CascadeType.ALL)
-        private List <Subject> subjects;
-
-        @JsonBackReference
-        @ManyToOne
-        @JoinColumn(name = "schedule_id", referencedColumnName = "scheduleId")
-        private Schedule generalSchedule;
-
-
-        @Getter
-        @Setter
-        @NoArgsConstructor
-        @Table (name = "subject")
-        @Entity
-        public static class Subject {
-            @EmbeddedId
-            private SubjectId subjectId;
-            private String content;
-
-
-            @Getter
-            @Setter
-            @Embeddable
-            public static class SubjectId implements Serializable {
-                private String time;
-
-                @JsonBackReference
-                @ManyToOne
-                @JoinColumn(name = "schedule_day_id", referencedColumnName = "dayId")
-                private ScheduleDay scheduleDay;
-            }
-        }
-    }
+    private List <Subject> subjects;
 }
