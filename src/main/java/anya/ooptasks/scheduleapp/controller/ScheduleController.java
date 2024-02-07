@@ -9,18 +9,29 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @AllArgsConstructor
 public class ScheduleController {
+    public class DayDto {
+        public Integer id;
+        public String name;
 
+        public DayDto(Integer id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
     ScheduleService service;
+
+
     @GetMapping
     public String findAllSchedules(Model model) {
         List<Schedule> mySchedule = service.findAllSchedules();
         if (!mySchedule.isEmpty()) {
             Schedule scheduleForWork = mySchedule.get(0);
-            List<String> days = getDays(scheduleForWork);
+            List<DayDto> days = getDays(scheduleForWork).entrySet().stream().map(e -> new DayDto (e.getKey(), e.getValue())).collect(Collectors.toList());
             List<String> times = getTimes(scheduleForWork);
             SortedMap <Integer, List<String>> scheduleCellsItems = getScheduleItems(scheduleForWork);
 
@@ -51,31 +62,31 @@ public class ScheduleController {
         return scheduleCellsItems;
     }
 
-    private static List<String> getDays(Schedule scheduleForWork) {
+    private static Map<Integer, String> getDays(Schedule scheduleForWork) {
         int daysAmount = scheduleForWork.getScheduleDays().size();
-        List<String> days = new ArrayList<>();
+       Map<Integer, String> days = new HashMap<>();
         for (int i = 0; i < daysAmount; i++) {
             switch (i) {
                 case 0:
-                    days.add(i, "Понедельник");
+                    days.put(i, "Понедельник");
                     break;
                 case 1:
-                    days.add(i, "Вторник");
+                    days.put(i, "Вторник");
                     break;
                 case 2:
-                    days.add(i, "Среда");
+                    days.put(i, "Среда");
                     break;
                 case 3:
-                    days.add(i, "Четверг");
+                    days.put(i, "Четверг");
                     break;
                 case 4:
-                    days.add(i, "Пятница");
+                    days.put(i, "Пятница");
                     break;
                 case 5:
-                    days.add(i, "Суббота");
+                    days.put(i, "Суббота");
                     break;
                 case 6:
-                    days.add(i, "Воскресенье");
+                    days.put(i, "Воскресенье");
                     break;
             }
         }
@@ -99,8 +110,8 @@ public class ScheduleController {
         service.saveSchedule(schedule);
     }
 
-    @PutMapping
-    public Schedule updateSchedule(@RequestBody Schedule schedule) {
-        return service.updateSchedule(schedule);
-    }
+//    @PutMapping
+//    public Schedule updateSchedule(@RequestBody Schedule schedule) {
+//        return service.updateSchedule(schedule);
+//    }
 }
