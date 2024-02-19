@@ -33,7 +33,7 @@ public interface SingleDayRepository extends JpaRepository<SingleDay, SingleDay.
     @Query("SELECT DISTINCT day.id.day FROM SingleDay day WHERE day.id.day = (SELECT MAX(day2.id.day) FROM SingleDay day2)")
     DayOfWeek findLastDay();
 
-    @Query ("SELECT DISTINCT day.id.day FROM SingleDay day")
+    @Query ("SELECT DISTINCT day.id.day FROM SingleDay day ORDER BY day.id.day")
     List<DayOfWeek> findAllDistinctSingleDays();
 
     @Query ("SELECT DISTINCT day.id.startTime FROM SingleDay day ORDER BY day.id.startTime")
@@ -46,6 +46,8 @@ public interface SingleDayRepository extends JpaRepository<SingleDay, SingleDay.
     @Query("SELECT DISTINCT day.id FROM SingleDay day")
     List<SingleDay.JointId> findDistinctIds();
 
+    @Query ("SELECT day FROM SingleDay day ORDER BY day.id.day, day.id.startTime")
+    List <SingleDay> findAllOrdered();
 
     //TODO: возможно потом можно будет переработать все или некоторое вышеимеющееся в просто строчкой задание, без куери
 }

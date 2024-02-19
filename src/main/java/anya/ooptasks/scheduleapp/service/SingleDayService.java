@@ -1,7 +1,6 @@
 package anya.ooptasks.scheduleapp.service;
 
 
-import anya.ooptasks.scheduleapp.model.Schedule;
 import anya.ooptasks.scheduleapp.model.SingleDay;
 import anya.ooptasks.scheduleapp.repository.SingleDayRepository;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,7 @@ public class SingleDayService {
     private final SingleDayRepository repository;
 
     public void addNewTimeline(LocalTime startTime, LocalTime endTime) {
-        List<DayOfWeek> presentDays = findAllDistinctSingleDays();
+        List<DayOfWeek> presentDays = findAllDistinctDaysOfWeek();
         if (startTime == null || endTime == null) {
             throw new RuntimeException("Start or end time is null");
         }
@@ -182,12 +181,19 @@ public class SingleDayService {
     }
 
     public List<SingleDay> findAllSingleDays() {
-        return repository.findAll();
+        return repository.findAllOrdered();
     }
 
-    public List<DayOfWeek> findAllDistinctSingleDays() {
+    public List<DayOfWeek> findAllDistinctDaysOfWeek() {
         return repository.findAllDistinctSingleDays();
     }
+    public List<LocalTime> findAllDistinctStartTimes(){
+        return repository.findAllDistinctStartTimes();
+    }
+    public List<LocalTime> findAllDistinctEndTimes(){
+        return repository.findAllDistinctEndTimes();
+    }
+
 //
 //    public List<SingleDay.JointId> findDistinctIds() {
 //        return repository.findDistinctIds();

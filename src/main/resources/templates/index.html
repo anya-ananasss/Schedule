@@ -1,251 +1,434 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="ru" xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--    <link rel="stylesheet" href="/styles.css">-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title>расписание</title>-->
-<!--    <style>/* Add a black background color to the top navigation */-->
-<!--    .topnav {-->
-<!--        background-color: #e8e8e8;-->
-<!--        overflow: hidden;-->
-<!--    }-->
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/styles.css">
+    <meta charset="UTF-8">
+    <title>расписание</title>
+    <style>
+        table {
+            width: 100%;
+            margin-bottom: 20px;
+            border: 1px solid #dddddd;
+            border-collapse: collapse;
+        }
 
-<!--    /* Style the links inside the navigation bar */-->
-<!--    .topnav a {-->
-<!--        float: right;-->
-<!--        color: #1c1c1c;-->
-<!--        text-align: center;-->
-<!--        padding: 14px 16px;-->
-<!--        text-decoration: none;-->
-<!--        font-size: 17px;-->
-<!--    }-->
-<!--    table {-->
-<!--        width: 100%; /* Ширина таблицы */-->
-<!--        background: white; /* Цвет фона таблицы */ /* Цвет текста */-->
-<!--        border-spacing: 1px;/* Расстояние между ячейками */-->
-<!--        margin-top: 10px;-->
-<!--    }-->
-<!--    th {-->
-<!--        background: #a11111; /* Цвет фона ячеек */-->
-<!--        padding: 5px;-->
-<!--        color: white;/* Поля вокруг текста */-->
-<!--    }-->
-<!--    td {-->
-<!--        background: #e8e8e8; /* Цвет фона ячеек */-->
-<!--        padding: 5px;/* Поля вокруг текста */-->
-<!--        color: #1c1c1c;-->
-<!--        text-align: center;-->
-<!--    }-->
+        table th {
+            font-weight: bold;
+            padding: 5px;
+            background: #efefef;
+            border: 1px solid #dddddd;
+        }
 
+        table td {
+            border: 1px solid #dddddd;
+            padding: 5px;
+        }
+    </style>
+</head>
 
-<!--    /* Dropdown Button */-->
-<!--    .dropbtn {-->
-<!--        background-color: #4CAF50;-->
-<!--        color: white;-->
-<!--        padding: 16px;-->
-<!--        font-size: 16px;-->
-<!--        border: none;-->
-<!--        float: right;-->
-<!--    }-->
+<body>
+<h1>Schedule</h1>
+<div class="topnav">
+    <a></a>
+</div>
 
-<!--    /* The container <div> - needed to position the dropdown content */-->
-<!--    .dropdown {-->
-<!--        position: relative;-->
-<!--        display: inline-block;-->
-<!--    }-->
-
-<!--    /* Dropdown Content (Hidden by Default) */-->
-<!--    .dropdown-content {-->
-<!--        display: none;-->
-<!--        position: absolute;-->
-<!--        background-color: #f1f1f1;-->
-<!--        min-width: 160px;-->
-<!--        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);-->
-<!--        z-index: 1;-->
-<!--    }-->
-
-<!--    /* Links inside the dropdown */-->
-<!--    .dropdown-content a {-->
-<!--        color: black;-->
-<!--        padding: 12px 16px;-->
-<!--        text-decoration: none;-->
-<!--        display: block;-->
-<!--    }-->
-
-<!--    /* Change color of dropdown links on hover */-->
-<!--    .dropdown-content a:hover {background-color: #ddd;}-->
-
-<!--    /* Show the dropdown menu on hover */-->
-<!--    .dropdown:hover .dropdown-content {display: block;}-->
-
-<!--    /* Change the background color of the dropdown button when the dropdown content is shown */-->
-<!--    .dropdown:hover .dropbtn {background-color: #3e8e41;}</style>-->
-<!--</head>-->
-
-<!--<body>-->
-<!--<h1>Schedule</h1>-->
-<!--<div class="topnav">-->
-<!--    <a></a>-->
-<!--</div>-->
-
-<!--<table id="schedule">-->
-<!--    <thead>-->
-<!--    <th></th>-->
-<!--    <th:block th:each="days : ${defaultDays}">-->
-<!--        <th th:text="${days.name}" th:href="/${days.id}">Редактировать</th>-->
-<!--    </th:block>-->
-<!--    </thead>-->
+<div id="myElement" data-default-days="[[${defaultDays}]]"></div>
+<table id="schedule">
+    <thead>
+    <tr>
+        <td></td>
+        <td></td>
+        <th th:each="dayOfWeek : ${defaultDays}" th:text="${dayOfWeek.name}">day</th>
+    </tr>
+    </thead>
 
 
-<!--&lt;!&ndash;    <tr th:each="iterPar, iterStat: ${defaultTimes}">&ndash;&gt;-->
-<!--&lt;!&ndash;        <th:block>&ndash;&gt;-->
-<!--&lt;!&ndash;            <td th:text="${iterPar}"></td> &lt;!&ndash;ячейка со временем &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;            <td th:each="subjPar: ${defaultScheduleItems}" th:text="${subjPar[iterStat.index]}"></td>&ndash;&gt;-->
-<!--&lt;!&ndash;            &lt;!&ndash; выводим строку с названием предмета, соответствующую данному времени и дню &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;        </th:block>&ndash;&gt;-->
-<!--&lt;!&ndash;    </tr>&ndash;&gt;-->
+    <tbody>
+    <tr th:each="timeIndex : ${#numbers.sequence(0, defaultStartTimes.size() - 1)}">
 
-<!--</table>-->
-<!--<div>-->
-<!--    <button id="editButton">Редактировать</button>-->
-<!--    <button id="saveButton">Сохранить изменения</button>-->
-<!--</div>-->
+        <td th:text="${defaultStartTimes[timeIndex].toString()}">time</td>
+        <td th:text="${defaultEndTimes[timeIndex].toString()}">time</td>
 
+        <td th:each="dayIndex : ${#numbers.sequence(0,defaultDays.size()-1)}"
+            th:text="${defaultContent[timeIndex][dayIndex]}"></td>
 
-<!--<script>-->
-<!--    function editButtonClick() {-->
-<!--        const table = document.getElementById("schedule");-->
-<!--        let currCell;-->
-<!--        for (let i = 1; i < table.rows.length; i++) {-->
-<!--            for (let j = 0; j < table.rows[0].cells.length; j++) {-->
-<!--                currCell = table.rows[i].cells[j];-->
-<!--                const form = document.createElement("form");-->
-<!--                form.action = "";-->
-<!--                form.method = "put";-->
-<!--                const input = document.createElement("input");-->
-<!--                input.type = "text";-->
-<!--                input.value = currCell.innerHTML;-->
-<!--                form.appendChild(input);-->
-<!--                currCell.innerHTML = "";-->
-<!--                currCell.appendChild(form);-->
-<!--            }-->
-<!--        }-->
-<!--    }-->
+    </tr>
+    </tbody>
 
-<!--    function saveButtonClick() {-->
-<!--        console.log("ygygiuu");-->
-<!--        const table = document.getElementById("schedule");-->
-<!--        let scheduleDays = [];-->
-<!--        const columnsAmount = table.rows[0].cells.length-1;-->
-<!--        console.log("gyg" + columnsAmount);-->
-
-<!--        //идем по столбцам, чтобы присваивать dayId в каждый день-->
-<!--        for (let dayColumn = 0; dayColumn < columnsAmount; dayColumn++) {-->
-<!--            console.log('uhug'+ dayColumn);-->
-<!--            //пришли в столбец, идем по его строкам:-->
-<!--            for (let i = 1; i < table.rows.length; i++) {-->
-<!--                let scheduleDay = {-->
-<!--                    dayId: dayColumn,-->
-<!--                    scheduleId: 1,-->
-<!--                    subjects: []-->
-<!--                };-->
-<!--                //идем по ячейкам только этого столбца-->
-<!--                for (let j = 0; j < table.rows[0].cells.length; j++) {-->
-<!--                    let cell = table.rows[i].cells[dayColumn];-->
-<!--                    let timeCell = table.rows[i].cells[0];-->
-
-<!--                    // сабжект айди задается временем (0 колонка, нынешняя строка i) и-->
-<!--                    // связаным scheduleDay и его дэй айди (dayColumn)-->
-<!--                    let subjectId = {-->
-<!--                        time: timeCell.innerHTML.trim(),-->
-<!--                        dayId: dayColumn-->
-<!--                    }-->
-
-<!--                    //получаем содержимое нынешней ячейки...-->
-<!--                    let content = cell.innerHTML.trim();-->
-
-<!--                    //и добавляем его в сабджект-->
-<!--                    let subject = {-->
-<!--                        subjectId: subjectId,-->
-<!--                        content: content-->
-<!--                    };-->
-
-<!--                    //полученные сабджектс добавляем в сабджектс дня-->
-<!--                    scheduleDay.subjects.push(subject);-->
-<!--                }-->
-<!--                //к дням расписания добавляем только что инициализированный день-->
-<!--                scheduleDays.push(scheduleDay);-->
-<!--            }-->
+</table>
 
 
-<!--            let schedule = {-->
-<!--                scheduleId: 1,-->
-<!--                scheduleDays: scheduleDays-->
-<!--            }-->
+<div>
+    <button id="editButton">Редактировать</button>
+    <button id="saveButton">Сохранить изменения</button>
 
-<!--            console.log(schedule);-->
+</div>
+<script th:inline="javascript">
 
-<!--            //-->
-<!--            //     // {-->
-<!--            //             // "scheduleId" : 1...-->
-<!--            //             // "scheduleDays" : [ - сейчас будем задавать:-->
-<!--            //-->
-<!--            //     const columnsAmount = table.rows[0].length;-->
-<!--            //     //идем по столбцам, чтобы присваивать dayId в каждый день-->
-<!--            //     for (let dayColumn = 0; dayColumn < columnsAmount; dayColumn++) {-->
-<!--            //         //пришли в столбец, идем по его строкам:-->
-<!--            //         for (let i = 1; i < table.rows.length; i++) {-->
-<!--            //             let scheduleDay = {-->
-<!--            //                 dayId: dayColumn,-->
-<!--            //                 scheduleId: 1,-->
-<!--            //                 subjects: []-->
-<!--            //             };-->
-<!--            //             //идем по ячейкам только этого столбца-->
-<!--            //             for (let j = 0; j < table.rows[0].cells.length; j++) {-->
-<!--            //                 let cell = table.rows[i].cells[dayColumn];-->
-<!--            //                 let timeCell = table.rows[i].cells[0];-->
-<!--            //-->
-<!--            //                 // сабжект айди задается временем (0 колонка, нынешняя строка i) и-->
-<!--            //                 // связаным scheduleDay и его дэй айди (dayColumn)-->
-<!--            //                 let subjectId = {-->
-<!--            //                     time: timeCell.innerHTML.trim(),-->
-<!--            //                     dayId: dayColumn-->
-<!--            //                 }-->
-<!--            //-->
-<!--            //                 //получаем содержимое нынешней ячейки...-->
-<!--            //                 let content = cell.innerHTML.trim();-->
-<!--            //-->
-<!--            //                 //и добавляем его в сабджект-->
-<!--            //                 let subject = {-->
-<!--            //                     subjectId: subjectId,-->
-<!--            //                     content: content-->
-<!--            //                 };-->
-<!--            //-->
-<!--            //                 //полученные сабджектс добавляем в сабджектс дня-->
-<!--            //                 scheduleDay.subjects.push(subject);-->
-<!--            //             }-->
-<!--            //             //к дням расписания добавляем только что инициализированный день-->
-<!--            //             scheduleDays.push(scheduleDay);-->
-<!--            //         }-->
-<!--            // }-->
-<!--            //     //после того, как прошли все дни, полученный массив scheduleDays добавляем в schedule:-->
-<!--            //     schedule.push(scheduleDays);-->
-
-<!--            fetch('http://localhost:8080', {-->
-<!--                method: 'PUT',-->
-<!--                headers: {-->
-<!--                    'Content-Type': 'application/json'-->
-<!--                },-->
-<!--                body: JSON.stringify(schedule)-->
-<!--            })-->
-<!--                .then(response => response.json());-->
-<!--        }-->
-<!--    }-->
-
-<!--    document.getElementById('editButton').addEventListener('click', editButtonClick);-->
-<!--    document.getElementById('saveButton').addEventListener('click', saveButtonClick);-->
+    const defaultDays = [[${defaultDays}]];
+    const allDays = [[${allDays}]];
 
 
-<!--</script>-->
-<!--</body>-->
-<!--</html>-->
+    // function addCounter() {
+    //     let currentValue = 0;
+    //
+    //     function updateCounter() {
+    //         const counterDisplay = document.getElementById('counterDisplay');
+    //         counterDisplay.textContent = currentValue;
+    //     }
+    //
+    //
+    //     function increaseCounter() {
+    //         currentValue++;
+    //         updateCounter();
+    //     }
+    //
+    //
+    //     function decreaseCounter() {
+    //         currentValue--;
+    //         updateCounter();
+    //     }
+    //
+    //
+    //     const incrementButton = document.createElement('button');
+    //     incrementButton.textContent = '▲';
+    //     incrementButton.addEventListener('click', increaseCounter);
+    //
+    //     const decrementButton = document.createElement('button');
+    //     decrementButton.textContent = '▼';
+    //     decrementButton.addEventListener('click', decreaseCounter);
+    //
+    //
+    //     const counterDisplay = document.createElement('div');
+    //     counterDisplay.id = 'counterDisplay';
+    //     counterDisplay.textContent = currentValue;
+    //
+    //
+    //     document.body.appendChild(incrementButton);
+    //     document.body.appendChild(decrementButton);
+    //     document.body.appendChild(counterDisplay);
+    // }
+    //
+
+    const scheduleTable = document.getElementById('schedule');
+    let scheduleTableArr = new Array(scheduleTable.rows.length);
+    // // var defaultDaysFromThymeleaf = [[${defaultDays}]];
+    // console.log(defaultDaysFromThymeleaf);
+
+    for (let i = 0; i < scheduleTable.rows.length; i++) {
+        scheduleTableArr[i] = new Array(scheduleTable.rows[0].cells.length);
+    }
+
+    for (let i = 0; i < scheduleTable.rows.length; i++) {
+        for (let j = 0; j < scheduleTable.rows[0].cells.length; j++) {
+            scheduleTableArr[i][j] = scheduleTable.rows[i].cells[j].innerHTML;
+        }
+    }
+
+    // function addForms(table) {
+    //     let currCell;
+    //     for (let i = 1; i < table.rows.length; i++) {
+    //         for (let j = 2; j < table.rows[0].cells.length; j++) {
+    //             currCell = table.rows[i].cells[j];
+    //             const form = document.createElement("form");
+    //             form.action = "";
+    //             form.method = "put";
+    //             const input = document.createElement("input");
+    //             input.type = "text";
+    //             input.value = currCell.innerHTML;
+    //             form.appendChild(input);
+    //             currCell.innerHTML = "";
+    //             currCell.appendChild(form);
+    //         }
+    //     }
+    // }
+
+    function startEditing() {
+        const editButton = document.getElementById('editButton');
+        const table = document.getElementById('schedule');
+
+        let currCell;
+        for (let i = 1; i < table.rows.length; i++) {
+            for (let j = 0; j < table.rows[0].cells.length; j++) {
+                currCell = table.rows[i].cells[j];
+                const form = document.createElement("form");
+                form.action = "";
+                form.method = "put";
+                const input = document.createElement("input");
+                input.type = "text";
+                input.value = currCell.innerHTML;
+                form.appendChild(input);
+                currCell.innerHTML = "";
+                currCell.appendChild(form);
+            }
+        }
+
+        const plusButtonTime = document.createElement('button');
+        plusButtonTime.textContent = '+';
+        editButton.insertAdjacentElement('afterend', plusButtonTime);
+
+
+        const minusButtonTime = document.createElement('button');
+        minusButtonTime.textContent = '-';
+        plusButtonTime.insertAdjacentElement('afterend', minusButtonTime);
+
+        const plusButtonDay = document.createElement('button');
+        for (let i = 0; i < table.rows.length; i++) {
+            plusButtonDay.setAttribute('id', 'plusButtonDay');
+            plusButtonDay.textContent = '+';
+
+
+            const cell = table.rows[i].insertCell(-1);
+            if (i === 0) {
+                cell.appendChild(plusButtonDay);
+            } else {
+                cell.innerHTML = "";
+            }
+        }
+        console.log(table.rows[0].cells.length);
+
+        const minusButtonDay = document.createElement('button');
+        minusButtonDay.setAttribute('id', 'minusButtonDay');
+        minusButtonDay.textContent = '-';
+        plusButtonDay.insertAdjacentElement('afterend', minusButtonDay);
+
+        editButton.remove();
+
+        plusButtonTime.addEventListener('click', addTimeRow);
+        minusButtonTime.addEventListener('click', removeTimeRow);
+
+        plusButtonDay.addEventListener('click', addDay);
+        minusButtonDay.addEventListener('click', removeDay);
+
+        console.log("aboba")
+        console.log(scheduleTableArr);
+    }
+
+    const editButton = document.getElementById('editButton');
+    editButton.addEventListener('click', startEditing);
+
+    function addTimeRow() {
+        const table = document.getElementById('schedule');
+        let newRow = table.insertRow();
+        for (let i = 0; i < table.rows[0].cells.length - 1; i++) {
+            let currCell = newRow.insertCell();
+            const form = document.createElement("form");
+            form.action = "";
+            form.method = "put";
+            const input = document.createElement("input");
+            input.type = "text";
+            input.value = "";
+            form.appendChild(input);
+            currCell.appendChild(form);
+        }
+        let newRowArr = [];
+        for (let i = 0; i < newRow.cells.length; i++) {
+            newRowArr[i] = "";
+        }
+        scheduleTableArr.push(newRowArr);
+        console.log(scheduleTableArr);
+    }
+
+
+    function removeTimeRow() {
+        const table = document.getElementById('schedule');
+        const rows = table.getElementsByTagName('tr');
+        table.deleteRow(rows.length - 1);
+
+        scheduleTableArr.pop();
+        console.log(scheduleTableArr);
+    }
+
+
+    // function addDay() {
+    //
+    //     const table = document.getElementById('schedule');
+    //     const columnCount = table.rows[0].cells.length;
+    //
+    //
+    //     const plusButtonEx = document.getElementById("plusButtonDay");
+    //     plusButtonEx.remove();
+    //     console.log("abobaaa");
+    //     const minusButtonEx = document.getElementById("minusButtonDay");
+    //     minusButtonEx.remove();
+    //
+    //
+    //     let currCell;
+    //     for (let i = 0; i < table.rows.length; i++) {
+    //
+    //
+    //
+    //         let currRow = table.rows[i];
+    //         let columnCount = currRow.cells.length;
+    //         let cell = currRow.insertCell(columnCount);
+    //         scheduleTableArr[i].push("");
+    //
+    //
+    //         const form = document.createElement("form");
+    //         form.action = "";
+    //         form.method = "put";
+    //         const input = document.createElement("input");
+    //         input.type = "text";
+    //         input.value = "";
+    //         form.appendChild(input);
+    //         currCell.appendChild(form);
+    //     }
+    //     console.log(scheduleTableArr);
+    //
+    //     const plusButtonDay = document.createElement('button');
+    //     plusButtonDay.setAttribute('id', 'plusButtonDay');
+    //     plusButtonDay.textContent = '+';
+    //     const lastColumn = table.rows[0].cells[table.rows[0].cells.length - 1];
+    //     lastColumn.insertAdjacentElement('afterend', plusButtonDay);
+    //     console.log("hui");
+    //     const minusButtonDay = document.createElement('button');
+    //     minusButtonDay.setAttribute('id', 'minusButtonDay');
+    //     minusButtonDay.textContent = '-';
+    //     plusButtonDay.insertAdjacentElement('afterend', minusButtonDay);
+    // }
+
+
+    function addDay() {
+        const table = document.getElementById("schedule");
+        const rows = table.rows;
+        let currCell;
+        for (let i = 0; i < rows.length; i++) {
+
+
+            if (i === 0) {
+                const headerRow = table.rows[0];
+                const presentDaysAm = defaultDays.length;
+                const cellValue = allDays[presentDaysAm].toString();
+
+
+                currCell = headerRow.insertCell(headerRow.cells.length - 1);
+                currCell.innerHTML = cellValue;
+                scheduleTableArr[i].push(cellValue);
+                defaultDays.push(allDays[presentDaysAm]);
+            } else {
+                currCell = rows[i].insertCell(rows[i].cells.length - 1);
+                const form = document.createElement("form");
+                form.action = "";
+                form.method = "put";
+                const input = document.createElement("input");
+                input.type = "text";
+                input.value = "";
+                form.appendChild(input);
+                currCell.appendChild(form);
+
+
+                scheduleTableArr[i].push("");
+            }
+
+        }
+        console.log(scheduleTableArr);
+    }
+
+    function removeDay() {
+        const table = document.getElementById("schedule");
+        const columnCount = table.rows.length;
+        for (let i = 0; i < columnCount; i++) {
+            table.rows[i].deleteCell(table.rows[i].cells.length - 2);
+            scheduleTableArr[i].pop();
+        }
+        console.log(scheduleTableArr);
+    }
+
+    function saveChanges() {
+        const table = document.getElementById("schedule");
+        for (let row = 0; row < table.rows.length; row++) {
+            for (let col = 0; col < table.rows[0].cells.length; col++) {
+                const form = table.rows[row].cells[col].querySelector("form");
+                if (form) {
+                    scheduleTableArr[row][col] = form.querySelector('input').value;
+                }
+            }
+        }
+
+        console.log(scheduleTableArr);
+
+        for (let row = 1; row < scheduleTableArr.length; row++) {
+            for (let col = 2; col < scheduleTableArr[0].length; col++) {
+                let day = {
+                    id: {
+                        startTime: scheduleTableArr[row][0],
+                        endTime: scheduleTableArr[row][1],
+                        day: scheduleTableArr[0][col],
+                    },
+                    content: scheduleTableArr[row][col],
+                    schedule: {
+                        scheduleId: 1
+                    }
+                }
+
+                fetch('http://localhost:8080', {
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify(day),
+                }).then(response => {
+                    if (response.ok) {
+                        console.log('POST запрос успешно выполнен');
+                        console.log(day);
+                    } else {
+                        console.error('Ошибка выполнения POST запроса');
+                    }
+                })
+                    .catch(error => {
+                        console.error('Произошла ошибка:', error);
+                    });
+
+            }
+
+
+            console.log(scheduleTableArr);
+        }
+    }
+
+    function postRequest() {
+        var form = document.getElementsByTagName('form');
+
+        console.log(scheduleTableArr);
+
+        for (let i = 1; i < scheduleTableArr.length; i++) { //идем по строкам пока; попробуем один пн поменять
+            let day = {
+                id: {
+                    startTime: scheduleTableArr[i][0],
+                    endTime: scheduleTableArr[i][1],
+                    day: scheduleTableArr[0][2],
+                },
+                content: scheduleTableArr[i][2],
+                schedule: {
+                    scheduleId: 1
+                }
+            }
+
+            fetch('http://localhost:8080', {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify(day),
+            }).then(response => {
+                if (response.ok) {
+                    console.log('POST запрос успешно выполнен');
+                    console.log(day);
+                } else {
+                    console.error('Ошибка выполнения POST запроса');
+                }
+            })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
+                });
+
+        }
+
+    }
+
+
+    document.getElementById('saveButton').addEventListener('click', saveChanges);
+</script>
+
+</body>
+</html>
