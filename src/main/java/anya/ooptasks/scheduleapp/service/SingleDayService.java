@@ -9,52 +9,57 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
 public class SingleDayService {
     private final SingleDayRepository repository;
 
-    public void addNewTimeline(LocalTime startTime, LocalTime endTime) {
+    public void addNewTimeline(LocalTime startTime, LocalTime endTime, DayOfWeek dayOfWeek) {
         List<DayOfWeek> presentDays = findAllDistinctDaysOfWeek();
         if (startTime == null || endTime == null) {
             throw new RuntimeException("Start or end time is null");
         }
         if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
+            System.out.println("сиська пиписька");
             throw new RuntimeException("Start time must be less than end time");
         }
 
 
-        LocalTime prevEndTimeLastDay = findLastEndTimeInDay(findLastDay());
-        if (prevEndTimeLastDay != null) {
-            if (prevEndTimeLastDay.isAfter(startTime)) {
-                throw new RuntimeException("Current start time must be less than previous end time");
-            }
-        } else {
-            SingleDay emptyTimeLine = new SingleDay();
-            emptyTimeLine.setContent("");
-            SingleDay.JointId id = new SingleDay.JointId();
-            id.setStartTime(startTime);
-            id.setEndTime(endTime);
-            id.setDay(DayOfWeek.MONDAY);
-            emptyTimeLine.setId(id);
-            repository.save(emptyTimeLine);
-            return;
-        }
+//        LocalTime prevEndTimeLastDay = findLastEndTimeInDay(findLastDay());
+//        if (prevEndTimeLastDay != null) {
 
+//            if (prevEndTimeLastDay.isAfter(startTime)) {
+        System.out.println("зига свастика");
+//                throw new RuntimeException("Current start time must be less than previous end time");
+//            }
+//        } else {
+        System.out.println("abobus");
         SingleDay emptyTimeLine = new SingleDay();
         emptyTimeLine.setContent("");
-        //TODO: посмотреть как сюда привязать шкедьюл айди, и по сути все.... удаление/добавление строки времени есть, удаление/добавление дня - тоже, можно и фронт делать
-
         SingleDay.JointId id = new SingleDay.JointId();
         id.setStartTime(startTime);
         id.setEndTime(endTime);
+        id.setDay(dayOfWeek);
+        emptyTimeLine.setId(id);
+        repository.save(emptyTimeLine);
+        return;
+        //}
 
-        for (int i = 0; i < presentDays.size(); i++) {
-            id.setDay(presentDays.get(i));
-            emptyTimeLine.setId(id);
-            repository.save(emptyTimeLine);
-        }
+//        SingleDay emptyTimeLine = new SingleDay();
+//        emptyTimeLine.setContent("");
+//        //TODO: посмотреть как сюда привязать шкедьюл айди, и по сути все.... удаление/добавление строки времени есть, удаление/добавление дня - тоже, можно и фронт делать
+//
+//        SingleDay.JointId id = new SingleDay.JointId();
+//        id.setStartTime(startTime);
+//        id.setEndTime(endTime);
+//
+//        for (int i = 0; i < presentDays.size(); i++) {
+//            id.setDay(presentDays.get(i));
+//            emptyTimeLine.setId(id);
+//            repository.save(emptyTimeLine);
+        //  }
 
 
         //проверили, что временные границы адекватные и что они не наслаиваются на предыдущие.
@@ -73,14 +78,14 @@ public class SingleDayService {
 
         emptyCellTemplate.setContent("");
 
-        List <DayOfWeek> presentDaysList = repository.findAllDistinctSingleDays();
+        List<DayOfWeek> presentDaysList = repository.findAllDistinctSingleDays();
 
-        if (presentDaysList.isEmpty()){
+        if (presentDaysList.isEmpty()) {
             id.setDay(DayOfWeek.MONDAY);
         } else {
             int presentDaysAmount = presentDaysList.size();
-            DayOfWeek lastAddedDay = presentDaysList.get(presentDaysAmount-1);
-            id.setDay(DayOfWeek.values()[lastAddedDay.ordinal()+1]);
+            DayOfWeek lastAddedDay = presentDaysList.get(presentDaysAmount - 1);
+            id.setDay(DayOfWeek.values()[lastAddedDay.ordinal() + 1]);
         }
 
         for (int i = 0; i < timesAmount; i++) {
@@ -177,8 +182,32 @@ public class SingleDayService {
     }
 
     public void updateSingleDay(SingleDay updatedSingleDay) {
-        repository.save(updatedSingleDay);
+        List<LocalTime> prevStartTimes = repository.findAllDistinctStartTimes();
+        List<LocalTime> prevEndTimes = repository.findAllDistinctEndTimes();
+        List<DayOfWeek> presentDays = repository.findAllDistinctSingleDays();
+
+        LocalTime startTime = updatedSingleDay.getId().getStartTime();
+        LocalTime endTime = updatedSingleDay.getId().getEndTime();
+        DayOfWeek day = updatedSingleDay.getId().getDay();
+
+        int occurrencesTime = 0;
+
+
+        for (int i = 0; i < prevStartTimes.size(); i++) {
+            if (startTime == prevStartTimes.get(i)) {
+                occurrencesTime++;
+            } else if (endTime == prevEndTimes.get(i)) {
+                occurrencesTime++;
+            }
+        }
+
+        if (occurrencesTime == 0) {
+            addNewTimeline(startTime, endTime, updatedSingleDay.getId().getDay());
+        } else {
+            repository.save(updatedSingleDay);
+        }
     }
+
 
     public List<SingleDay> findAllSingleDays() {
         return repository.findAllOrdered();
@@ -187,10 +216,12 @@ public class SingleDayService {
     public List<DayOfWeek> findAllDistinctDaysOfWeek() {
         return repository.findAllDistinctSingleDays();
     }
-    public List<LocalTime> findAllDistinctStartTimes(){
+
+    public List<LocalTime> findAllDistinctStartTimes() {
         return repository.findAllDistinctStartTimes();
     }
-    public List<LocalTime> findAllDistinctEndTimes(){
+
+    public List<LocalTime> findAllDistinctEndTimes() {
         return repository.findAllDistinctEndTimes();
     }
 
@@ -205,6 +236,14 @@ public class SingleDayService {
 
     public void deleteAllByDay(DayOfWeek day) {
         repository.deleteAllByDay(day);
+    }
+
+    public void deleteLastElement(Object object) {
+        if (object instanceof DayOfWeek) {
+            repository.deleteAllByDay((DayOfWeek) object);
+        } else if (object instanceof LocalTime) {
+            repository.deleteAllByTime((LocalTime) object);
+        }
     }
 
 

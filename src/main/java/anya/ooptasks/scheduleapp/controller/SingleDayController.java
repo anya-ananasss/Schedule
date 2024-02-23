@@ -105,21 +105,12 @@ public class SingleDayController {
 //    }
 
 
-    @PostMapping("add_new_time/{startTime}_{endTime}")
-    public String addNewTimeLine(@PathVariable LocalTime startTime, @PathVariable LocalTime endTime) {
-        singleDayService.addNewTimeline(startTime, endTime);
-        return "New timeline added successfully";
-    }
+
 
     //    @PostMapping("add_new_day")
 //    public String saveFirstDay (@RequestBody SingleDay singleDay){
 //        singleDayService.updateOrSaveSingleDay(singleDay);
 //        return "New day added successfully";
 //    }
-    @PostMapping("add_empty_day")
-    public String addEmptyDay() {
-        singleDayService.addNewEmptyDay();
-        return "Empty day added successfully";
-    }
 
 }

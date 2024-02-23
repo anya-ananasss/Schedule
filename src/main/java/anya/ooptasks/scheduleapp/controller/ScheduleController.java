@@ -4,6 +4,7 @@ import anya.ooptasks.scheduleapp.model.Schedule;
 import anya.ooptasks.scheduleapp.model.SingleDay;
 import anya.ooptasks.scheduleapp.service.ScheduleService;
 import anya.ooptasks.scheduleapp.service.SingleDayService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,17 +26,30 @@ public class ScheduleController {
 //        return scheduleService.findAllSchedules();
 //    }
 //
-//    @PostMapping("save_schedule")
-//        public String saveSchedule(@RequestBody Schedule schedule) {
-//            scheduleService.saveSchedule(schedule);
-//            return "Schedule successfully saved"; //сэйв шкедьюл - самая начальная инициализация, наверное даже и не будет использоваться
-//        }
+    @PostMapping("save_schedule")
+        public String saveSchedule() {
+            return "aboba"; //сэйв шкедьюл - самая начальная инициализация, наверное даже и не будет использоваться
+        }
 //
     @PostMapping()
     public String updateSchedule(@RequestBody SingleDay singleDay) {
-        singleDayService.updateSingleDay(singleDay);
+            singleDayService.updateSingleDay(singleDay);
         return "Schedule successfully updated";
     }
+
+    @Transactional
+    @PutMapping()
+    public String saveChanges(@RequestBody SingleDay singleDay){
+        singleDayService.updateSingleDay(singleDay);
+        return "хуй";
+    }
+    @Transactional
+    @DeleteMapping()
+    public String deleteLastDay (){
+        singleDayService.deleteAllByDay(singleDayService.findLastDay());
+        return "success";
+    }
+
 //
 //    @DeleteMapping ("delete_schedule_by_id/{id}")
 //    public void deleteById (@PathVariable Integer id) {
