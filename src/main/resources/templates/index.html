@@ -184,7 +184,6 @@
             form.appendChild(input);
             currCell.appendChild(form);
         }
-        console.log("пыыыска");
         let newRowArr = Array(scheduleTableArr[0].length);
         for (let i = 0; i < newRowArr.length; i++) {
             if (i === 0) {
@@ -196,7 +195,6 @@
             }
         }
         scheduleTableArr.push(newRowArr);
-        console.log(scheduleTableArr)
 
 
         for (let col = 2; col < table.rows[0].cells.length - 2; col++) { //TODO: почему-2?
@@ -211,7 +209,6 @@
                     scheduleId: 1
                 }
             };
-            console.log(newDay);
             const response = fetch('http://localhost:8080', {
                 method: 'POST',
                 headers: {
@@ -220,10 +217,7 @@
                 body: JSON.stringify(newDay)
             });
             if (response.ok) {
-                console.log("эээй скуууф скуууфиииик");
             }
-            console.log("piska")
-
         }
 
     }
@@ -233,14 +227,12 @@
         const rows = table.getElementsByTagName('tr');
         table.deleteRow(rows.length - 1);
 
-        console.log("я кажется влюбилась и этот парень стример");
         const lastRowIndex = table.rows.length - 1;
         const timeToDelete = scheduleTableArr[lastRowIndex][1];
 
         scheduleTableArr.pop();
 
         for (let col = 1; col < table.rows[0].cells.length - 2; col++) { //TODO: почему-2?
-            console.log(lastRowIndex);
             let toDelete = {
                 id: {
                     startTime: scheduleTableArr[lastRowIndex][0],
@@ -252,24 +244,15 @@
                     scheduleId: 1
                 }
             };
-            console.log(toDelete);
             fetch('http://localhost:8080', {
                 method: 'DELETE',
                 headers: {
                     'Content-type': 'application/json'
                 },
                 body: JSON.stringify(toDelete)
-            })
-                .then(response => {
-                    if (response.ok) {
-                        console.log("эээй скуууф скуууфиииик");
-                    } else {
-                        console.log("piska");
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка:', error);
-                });
+            }).catch(error => {
+                console.error('Ошибка:', error);
+            });
         }
     }
 
@@ -292,7 +275,6 @@
                 currCell.innerHTML = cellValue;
                 scheduleTableArr[i].push(cellValue);
                 defaultDays.push(allDays[presentDaysAm]);
-                console.log(allDays[presentDaysAm]);
             } else {
                 currCell = rows[i].insertCell(rows[i].cells.length - 1);
                 const form = document.createElement("form");
@@ -314,7 +296,6 @@
         } else if (defaultDays.length > 0) {
             minusButtonDay.hidden = false;
         }
-        console.log(scheduleTableArr);
 
         for (let row = 1; row < table.rows.length; row++) { //TODO: по идее можно и не  заморачиваться с массивом, хз, это сейчас не основная проблема
             let newDay = {
@@ -328,21 +309,12 @@
                     scheduleId: 1
                 }
             }
-            console.log("ебнулись что ли");
-            console.log(newDaysArray);
-            console.log("ёбен бобен");
             fetch('http://localhost:8080', {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json'
                 },
                 body: JSON.stringify(newDay)
-            }) .then(response => {
-                if (response.ok) {
-                    console.log("эээй скуууф скууууф");
-                } else {
-                    console.log("я больной сука я больной");
-                }
             });
         }
 
@@ -361,23 +333,20 @@
 
 
         dayToDelete = defaultDays.pop();
-        if (defaultDays.length < 7) {
-            plusButtonDay.hidden = false;
-        }
 
 
-        const response = fetch('http://localhost:8080', {
+
+        fetch('http://localhost:8080', {
             method: 'DELETE',
             headers: {
                 'Content-type': 'application/json'
             },
             body: JSON.stringify(dayToDelete)
         });
-        if (response.ok) {
-            console.log("разъеб");
-        }
-        if (defaultDays.length === 0) {
+        if (defaultDays.length === 1) {
             minusButtonDay.hidden = true;
+        }  else if (defaultDays.length < 7) {
+            plusButtonDay.hidden = false;
         }
     }
 
@@ -391,29 +360,26 @@
 
 
         let inputs = document.querySelectorAll('input[type="text"]');
-        console.log(inputs);
-        console.log(scheduleTableArr)
 
 
-        outer: for (let row = 0; row < table.rows.length; row++) {
+        for (let row = 0; row < table.rows.length; row++) {
             for (let col = 0; col < table.rows[0].cells.length - 1; col++) {
-                if (formsCounter >= inputs.length) {
-                    break outer;
-                }
+
+
                 if (row === 0) {
                     scheduleTableArr[row][col] = table.rows[row].cells[col].innerHTML;
                 } else {
                     scheduleTableArr[row][col] = inputs[formsCounter].value;
+                    formsCounter++;
                 }
-                formsCounter++;
             }
         }
 
-        console.log(scheduleTableArr);
 
         const message = document.getElementById("errorMessage");
 
-
+        console.log("проапдейченный массив");
+        console.log(scheduleTableArr);
         for (let row = 1; row < scheduleTableArr.length; row++) {
             for (let col = 2; col < scheduleTableArr[0].length; col++) {
                 let day = {
@@ -427,14 +393,14 @@
                         scheduleId: 1
                     }
                 }
-                console.log(day);
+
                 totalUnsuccessfulRequests += await getUnsuccessfulRequestsAmount(day, totalUnsuccessfulRequests);
             }
         }
 
 
         if (totalUnsuccessfulRequests > 0) {
-            console.log("penis");
+
 
             message.style.color = "red";
             message.textContent = "Произошла ошибка! Проверьте корректность введенных данных";
@@ -475,19 +441,13 @@
             },
             body: JSON.stringify(day)
         });
-        if (!response.ok) {
-            totalUnsuccessfulRequests++;
-            console.log("пашли в хуй");
-        } else {
-            console.log("пашли в пизду");
-        }
         return totalUnsuccessfulRequests;
     }
 
 
     document.getElementById('saveButton').addEventListener('click', saveChanges)
 
-        //TODO: ОСТАЛОСЬ ТОЛЬКО СДЕЛАТЬ НОРМ ДОБАВЛЕНИЕ ДНЯ и обновление контента внутри
+    //TODO: ОСТАЛОСЬ ТОЛЬКО СДЕЛАТЬ НОРМ ДОБАВЛЕНИЕ ДНЯ и обновление контента внутри
 
 </script>
 
