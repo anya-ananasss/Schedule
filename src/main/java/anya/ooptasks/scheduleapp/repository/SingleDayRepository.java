@@ -18,17 +18,9 @@ public interface SingleDayRepository extends JpaRepository<SingleDay, SingleDay.
     @Query("DELETE FROM SingleDay day WHERE day.id.day = :day")
     void deleteAllByDay(DayOfWeek day);
 
-    @Query("SELECT DISTINCT day.id.startTime FROM SingleDay day WHERE day.id.startTime = (SELECT MAX(day2.id.startTime) FROM SingleDay day2)")
-    LocalTime findMaxStartTime();
 
     @Query("SELECT DISTINCT day.id.endTime FROM SingleDay day WHERE day.id.endTime = (SELECT MAX(day2.id.endTime) FROM SingleDay day2)")
     LocalTime findMaxEndTime();
-
-    @Query("SELECT day.id.startTime FROM SingleDay day WHERE day.id.day = :currDay AND day.id.startTime = (SELECT MAX(day2.id.startTime) FROM SingleDay day2)")
-    LocalTime findMaxStartTimeInDay(DayOfWeek currDay);
-
-    @Query("SELECT day.id.endTime FROM SingleDay day WHERE day.id.day = :currDay AND day.id.endTime = (SELECT MAX(day2.id.endTime) FROM SingleDay day2)")
-    LocalTime findMaxEndTimeInDay(DayOfWeek currDay);
 
     @Query("SELECT DISTINCT day.id.day FROM SingleDay day WHERE day.id.day = (SELECT MAX(day2.id.day) FROM SingleDay day2)")
     DayOfWeek findLastDay();
@@ -41,10 +33,6 @@ public interface SingleDayRepository extends JpaRepository<SingleDay, SingleDay.
 
     @Query ("SELECT DISTINCT day.id.endTime FROM SingleDay day ORDER BY day.id.endTime")
     List<LocalTime> findAllDistinctEndTimes();
-
-
-    @Query("SELECT DISTINCT day.id FROM SingleDay day")
-    List<SingleDay.JointId> findDistinctIds();
 
     @Query ("SELECT day FROM SingleDay day ORDER BY day.id.day, day.id.startTime")
     List <SingleDay> findAllOrdered();

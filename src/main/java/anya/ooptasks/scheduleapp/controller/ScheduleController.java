@@ -1,69 +1,78 @@
 package anya.ooptasks.scheduleapp.controller;
 
-import anya.ooptasks.scheduleapp.model.Schedule;
+
 import anya.ooptasks.scheduleapp.model.SingleDay;
-import anya.ooptasks.scheduleapp.service.ScheduleService;
 import anya.ooptasks.scheduleapp.service.SingleDayService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.List;
 
-@RestController
+@Controller
 @AllArgsConstructor
 public class ScheduleController {
     private final SingleDayService singleDayService;
-    private final ScheduleService scheduleService;
 
 
 
+    @GetMapping
+    public String findAllSingleDays(Model model) {
+        List<SingleDay> allScheduleDays = singleDayService.findAllSingleDays();
+        List<DayOfWeek> presentWeekDays = singleDayService.findAllDistinctDaysOfWeek();
+        List<DayOfWeek> allDays = Arrays.stream(DayOfWeek.values()).toList();
+        List<LocalTime> startTimes = singleDayService.findAllDistinctStartTimes();
+        List<LocalTime> endTimes = singleDayService.findAllDistinctEndTimes();
 
+        String[][] contents = new String[startTimes.size()][presentWeekDays.size()];
 
-//    //методы для работы с расписаниями (по сути, найти, удалить полностью, удалить одно, добавить новое - обновление происходит через обновление дней)
-//    @GetMapping("find_all_schedules")
-//    public List<Schedule> findAllSchedules() {
-//        return scheduleService.findAllSchedules();
-//    }
-//
-    @PostMapping("save_schedule")
-        public String saveSchedule() {
-            return "aboba"; //сэйв шкедьюл - самая начальная инициализация, наверное даже и не будет использоваться
+        for (int day = 0; day < presentWeekDays.size(); day++) {
+            for (int time = 0; time < startTimes.size(); time++) {
+                contents[time][day] = allScheduleDays.get(0).getContent();
+                allScheduleDays.remove(0);
+            }
         }
-//
-    @PostMapping()
-    public String updateSchedule(@RequestBody SingleDay singleDay) {
-            singleDayService.updateSingleDay(singleDay);
-        return "Schedule successfully updated";
+        singleDayService.findAllSingleDays();
+
+        model.addAttribute("defaultContent", contents);
+        model.addAttribute("defaultDays", presentWeekDays);
+        model.addAttribute("allDays", allDays);
+        model.addAttribute("defaultSingleDays", allScheduleDays);
+        model.addAttribute("defaultStartTimes", startTimes);
+        model.addAttribute("defaultEndTimes", endTimes);
+
+
+        return "index";
     }
 
+    @ResponseBody
+    @PostMapping()
+    public void updateSchedule(@RequestBody SingleDay singleDay) {
+            singleDayService.updateSingleDay(singleDay);
+    }
+
+    @ResponseBody
     @Transactional
     @PutMapping()
-    public String saveChanges(@RequestBody SingleDay singleDay){
+    public void saveChanges(@RequestBody SingleDay singleDay){
         singleDayService.updateSingleDay(singleDay);
-        return "хуй";
     }
+    @ResponseBody
     @Transactional
     @DeleteMapping()
-    public String deleteLastTime (@RequestBody Integer operationIndex){
+    public void deleteLastTime (@RequestBody Integer operationIndex){
         if (operationIndex==0) {
             singleDayService.deleteAllByTime(singleDayService.findLastEndTime());
         } else {
             singleDayService.deleteAllByDay(singleDayService.findLastDay());
         }
-        return "success";
     }
 
-//
-//    @DeleteMapping ("delete_schedule_by_id/{id}")
-//    public void deleteById (@PathVariable Integer id) {
-//        scheduleService.deleteById(id);
-//    }
-//
-//     @DeleteMapping ("delete_all_schedules")
-//    public void deleteAllSchedules () {
-//     scheduleService.deleteAll();
-//    }
  }
 
 
