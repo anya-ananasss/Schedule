@@ -49,5 +49,5 @@ public interface SingleDayRepository extends JpaRepository<SingleDay, SingleDay.
     @Query ("SELECT day FROM SingleDay day ORDER BY day.id.day, day.id.startTime")
     List <SingleDay> findAllOrdered();
 
-    //TODO: возможно потом можно будет переработать все или некоторое вышеимеющееся в просто строчкой задание, без куери
+
 }

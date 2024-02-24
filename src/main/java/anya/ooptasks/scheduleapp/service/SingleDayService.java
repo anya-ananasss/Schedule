@@ -18,6 +18,7 @@ public class SingleDayService {
 
     public void addNewTimeline(LocalTime startTime, LocalTime endTime, DayOfWeek dayOfWeek) {
         List<DayOfWeek> presentDays = findAllDistinctDaysOfWeek();
+        List<LocalTime> endTimes = findAllDistinctEndTimes();
         if (startTime == null || endTime == null) {
             throw new RuntimeException("Start or end time is null");
         }
@@ -26,15 +27,22 @@ public class SingleDayService {
             throw new RuntimeException("Start time must be less than end time");
         }
 
+        if (endTimes.size() > 1){
+        LocalTime prevEndTime = null;
+        for (int i = 0; i < endTimes.size(); i++) {
+            if (endTimes.get(i).equals(endTime)){
+                prevEndTime=endTimes.get(i-1);
+            }
+        }
+       //TODO - СДЕЛАТЬ ПОЛУЧЕНИЕ ВРЕМЕНИ ПЕРЕД НЫНЕШНИМ
+            if (prevEndTime != null) { //TODO: ГЛЯНУТЬ ПОЧЕМУ НУЛЛ МОЖЕТ ПОЛУЧАТЬСЯ
+                if (prevEndTime.isAfter(startTime)) {
+                    System.out.println("зига свастика");
+                    throw new RuntimeException("Current start time must be less than previous end time");
+                }
+            }
+        }
 
-//        LocalTime prevEndTimeLastDay = findLastEndTimeInDay(findLastDay());
-//        if (prevEndTimeLastDay != null) {
-
-//            if (prevEndTimeLastDay.isAfter(startTime)) {
-        System.out.println("зига свастика");
-//                throw new RuntimeException("Current start time must be less than previous end time");
-//            }
-//        } else {
         System.out.println("abobus");
         SingleDay emptyTimeLine = new SingleDay();
         emptyTimeLine.setContent("");
@@ -45,7 +53,6 @@ public class SingleDayService {
         emptyTimeLine.setId(id);
         repository.save(emptyTimeLine);
         return;
-        //}
 
 //        SingleDay emptyTimeLine = new SingleDay();
 //        emptyTimeLine.setContent("");
@@ -194,9 +201,7 @@ public class SingleDayService {
 
 
         for (int i = 0; i < prevStartTimes.size(); i++) {
-            if (startTime == prevStartTimes.get(i)) {
-                occurrencesTime++;
-            } else if (endTime == prevEndTimes.get(i)) {
+            if (startTime.equals(prevStartTimes.get(i)) || endTime.equals(prevEndTimes.get(i))) { //TODO: везде, где нужно, позаменять == на equals
                 occurrencesTime++;
             }
         }

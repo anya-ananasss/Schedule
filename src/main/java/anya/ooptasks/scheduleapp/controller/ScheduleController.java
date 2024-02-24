@@ -45,8 +45,8 @@ public class ScheduleController {
     }
     @Transactional
     @DeleteMapping()
-    public String deleteLastDay (){
-        singleDayService.deleteAllByDay(singleDayService.findLastDay());
+    public String deleteLastTime (){
+        singleDayService.deleteAllByTime(singleDayService.findLastEndTime());
         return "success";
     }
 
@@ -67,9 +67,6 @@ public class ScheduleController {
 
 //TODO: с этими сессиями хибернейт конечно мутная история... надо бы доебать палолегыча попозже
 
-//TODO: разскуфилась! теперь осталось подкорректировать архитектуру и правильно раскидать контроллеры, возможно поприсваивать каждой форме свое имя и общаться с формами; так, чтобы после нажатия
-//todo: сохранить изменения формы сбрасывались, все кнопки сбрасывались и снова появлялась кнопка "редактировать"
 
 
-//todo: еще - прятать +, когда появляется 7 столбцов и возвращать его, когда столбцов становится меньше;
-//todo: сделать обработку ошибок, в частости - со времнем, чтобы нельзя было поставить пустое или пересекающееся время
+
