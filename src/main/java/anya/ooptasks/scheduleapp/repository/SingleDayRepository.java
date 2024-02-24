@@ -25,17 +25,17 @@ public interface SingleDayRepository extends JpaRepository<SingleDay, SingleDay.
     @Query("SELECT DISTINCT day.id.day FROM SingleDay day WHERE day.id.day = (SELECT MAX(day2.id.day) FROM SingleDay day2)")
     DayOfWeek findLastDay();
 
-    @Query ("SELECT DISTINCT day.id.day FROM SingleDay day ORDER BY day.id.day")
+    @Query("SELECT DISTINCT day.id.day FROM SingleDay day ORDER BY day.id.day")
     List<DayOfWeek> findAllDistinctSingleDays();
 
-    @Query ("SELECT DISTINCT day.id.startTime FROM SingleDay day ORDER BY day.id.startTime")
+    @Query("SELECT DISTINCT day.id.startTime FROM SingleDay day ORDER BY day.id.startTime")
     List<LocalTime> findAllDistinctStartTimes();
 
-    @Query ("SELECT DISTINCT day.id.endTime FROM SingleDay day ORDER BY day.id.endTime")
+    @Query("SELECT DISTINCT day.id.endTime FROM SingleDay day ORDER BY day.id.endTime")
     List<LocalTime> findAllDistinctEndTimes();
 
-    @Query ("SELECT day FROM SingleDay day ORDER BY day.id.day, day.id.startTime")
-    List <SingleDay> findAllOrdered();
+    @Query("SELECT day FROM SingleDay day ORDER BY day.id.day, day.id.startTime")
+    List<SingleDay> findAllOrdered();
 
 
 }

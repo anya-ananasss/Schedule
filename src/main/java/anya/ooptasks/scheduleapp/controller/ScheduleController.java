@@ -20,7 +20,6 @@ public class ScheduleController {
     private final SingleDayService singleDayService;
 
 
-
     @GetMapping
     public String findAllSingleDays(Model model) {
         List<SingleDay> allScheduleDays = singleDayService.findAllSingleDays();
@@ -52,34 +51,43 @@ public class ScheduleController {
 
     @ResponseBody
     @PostMapping()
-    public void updateSchedule(@RequestBody SingleDay singleDay) {
-            singleDayService.updateSingleDay(singleDay);
+    public void examineNewTimeValues(@RequestBody SingleDay singleDay) {
+        LocalTime startTime = singleDay.getId().getStartTime();
+        LocalTime endTime = singleDay.getId().getEndTime();
+        singleDayService.examineNewTimeline(startTime, endTime);
     }
 
     @ResponseBody
     @Transactional
     @PutMapping()
-    public void saveChanges(@RequestBody SingleDay singleDay){
-        singleDayService.updateSingleDay(singleDay);
+    public void saveChanges(@RequestBody SingleDay singleDay) {
+        singleDayService.saveChanges(singleDay);
     }
+
     @ResponseBody
     @Transactional
     @DeleteMapping()
-    public void deleteLastTime (@RequestBody Integer operationIndex){
-        if (operationIndex==0) {
-            singleDayService.deleteAllByTime(singleDayService.findLastEndTime());
+    public void deleteLastTime(@RequestBody Integer operationIndex, @RequestBody(required = false) SingleDay singleDayToDelete) {
+        if (singleDayToDelete == null) {
+            if (operationIndex == 0) {
+                singleDayService.deleteAllByTime(singleDayService.findLastEndTime());
+            } else if (operationIndex == 1) {
+                singleDayService.deleteAllByDay(singleDayService.findLastDay());
+            }
         } else {
-            singleDayService.deleteAllByDay(singleDayService.findLastDay());
+            if (operationIndex == 0) {
+                singleDayService.deleteAllByTime(singleDayToDelete.getId().getEndTime());
+            } else if (operationIndex == 1) {
+                singleDayService.deleteAllByDay(singleDayToDelete.getId().getDay());
+            }
+
         }
     }
 
- }
+}
 
 
 
-
-//TODO: с этими сессиями хибернейт конечно мутная история... надо бы доебать палолегыча попозже
-
-
+//TODO: в индексе забабахать возможность откатиться к прошлой версии - все содержимое таблицы чистится, таблица в базе данных тоже, и через fetch и в цикле все заполняется значениями из origTableArr
 
 

@@ -16,7 +16,7 @@ import java.util.List;
 public class SingleDayService {
     private final SingleDayRepository repository;
 
-    public void addNewTimeline(LocalTime startTime, LocalTime endTime, DayOfWeek dayOfWeek) {
+    public void examineNewTimeline(LocalTime startTime, LocalTime endTime) {
         List<LocalTime> endTimes = findAllDistinctEndTimes();
         if (startTime == null || endTime == null) {
             throw new RuntimeException("Start or end time is null");
@@ -25,31 +25,22 @@ public class SingleDayService {
             throw new RuntimeException("Start time must be less than end time");
         }
 
-        if (endTimes.size() > 1){
-        LocalTime prevEndTime = null;
-        for (int i = 0; i < endTimes.size(); i++) {
-            if (endTimes.get(i).equals(endTime)){
-                prevEndTime=endTimes.get(i-1);
+        if (endTimes.size() > 1) {
+            LocalTime prevEndTime = null;
+            for (int i = 1; i < endTimes.size(); i++) {
+                if (endTimes.get(i).equals(endTime)) {
+                    prevEndTime = endTimes.get(i - 1);
+                }
             }
-        }
-       //TODO - СДЕЛАТЬ ПОЛУЧЕНИЕ ВРЕМЕНИ ПЕРЕД НЫНЕШНИМ
-            if (prevEndTime != null) { //TODO: ГЛЯНУТЬ ПОЧЕМУ НУЛЛ МОЖЕТ ПОЛУЧАТЬСЯ
+            if (prevEndTime != null) {
                 if (prevEndTime.isAfter(startTime)) {
                     throw new RuntimeException("Current start time must be less than previous end time");
                 }
             }
         }
 
-        SingleDay emptyTimeLine = new SingleDay();
-        emptyTimeLine.setContent("");
-        SingleDay.JointId id = new SingleDay.JointId();
-        id.setStartTime(startTime);
-        id.setEndTime(endTime);
-        id.setDay(dayOfWeek);
-        emptyTimeLine.setId(id);
-        repository.save(emptyTimeLine);
+        System.out.println("эй гайс у меня все найс");
     }
-
 
 
     public DayOfWeek findLastDay() {
@@ -57,35 +48,13 @@ public class SingleDayService {
     }
 
 
-
     public LocalTime findLastEndTime() { //TODO: я бы хотела поменять на использование startTime но тут все блять обрушится если я так сделаю
         return repository.findMaxEndTime();
     }
 
-
-    public void updateSingleDay(SingleDay updatedSingleDay) {
-        List<LocalTime> prevStartTimes = repository.findAllDistinctStartTimes();
-        List<LocalTime> prevEndTimes = repository.findAllDistinctEndTimes();
-
-        LocalTime startTime = updatedSingleDay.getId().getStartTime();
-        LocalTime endTime = updatedSingleDay.getId().getEndTime();
-
-        int occurrencesTime = 0;
-
-
-        for (int i = 0; i < prevStartTimes.size(); i++) {
-            if (startTime.equals(prevStartTimes.get(i)) || endTime.equals(prevEndTimes.get(i))) { //TODO: везде, где нужно, позаменять == на equals
-                occurrencesTime++;
-            }
-        }
-
-        if (occurrencesTime == 0) {
-            addNewTimeline(startTime, endTime, updatedSingleDay.getId().getDay());
-        } else {
-            repository.save(updatedSingleDay);
-        }
+    public void saveChanges(SingleDay updatedSingleDay) {
+        repository.save(updatedSingleDay);
     }
-
 
     public List<SingleDay> findAllSingleDays() {
         return repository.findAllOrdered();
@@ -104,7 +73,6 @@ public class SingleDayService {
     }
 
 
-
     public void deleteAllByTime(LocalTime time) {
         repository.deleteAllByTime(time);
     }
@@ -112,7 +80,6 @@ public class SingleDayService {
     public void deleteAllByDay(DayOfWeek day) {
         repository.deleteAllByDay(day);
     }
-
 
 
 }

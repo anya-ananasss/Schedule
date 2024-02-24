@@ -4,26 +4,6 @@
     <link rel="stylesheet" href="/styles.css">
     <meta charset="UTF-8">
     <title>расписание</title>
-    <style>
-        table {
-            width: 100%;
-            margin-bottom: 20px;
-            border: 1px solid #dddddd;
-            border-collapse: collapse;
-        }
-
-        table th {
-            font-weight: bold;
-            padding: 5px;
-            background: #efefef;
-            border: 1px solid #dddddd;
-        }
-
-        table td {
-            border: 1px solid #dddddd;
-            padding: 5px;
-        }
-    </style>
 </head>
 
 <body>
@@ -63,6 +43,7 @@
 <div>
     <button id="editButton">Редактировать</button>
     <button id="saveButton" style="display: none">Сохранить изменения</button>
+    <button id="undoChangesButton" style="display: none">Отменить изменения</button>
 
 </div>
 <div id="errorMessage"></div>
@@ -73,22 +54,25 @@
 
     const scheduleTable = document.getElementById('schedule');
     let scheduleTableArr = new Array(scheduleTable.rows.length);
+    let origTableArr = new Array(scheduleTable.rows.length);
 
 
     for (let i = 0; i < scheduleTable.rows.length; i++) {
         scheduleTableArr[i] = new Array(scheduleTable.rows[0].cells.length - 1);
+        origTableArr[i] = new Array(scheduleTable.rows[0].cells.length - 1);
     }
 
     for (let i = 0; i < scheduleTable.rows.length; i++) {
         for (let j = 0; j < scheduleTable.rows[0].cells.length - 1; j++) {
             scheduleTableArr[i][j] = scheduleTable.rows[i].cells[j].innerHTML;
+            origTableArr[i][j] = scheduleTable.rows[i].cells[j].innerHTML;
         }
     }
 
 
     const editButton = document.getElementById('editButton');
     const saveButton = document.getElementById("saveButton");
-
+    const undoChangesButton = document.getElementById("undoChangesButton");
 
     const plusButtonTime = document.createElement('button');
     const minusButtonTime = document.createElement('button');
@@ -145,7 +129,9 @@
         minusButtonDay.textContent = '-';
         plusButtonDay.insertAdjacentElement('afterend', minusButtonDay);
 
+
         editButton.hidden = true;
+        undoChangesButton.style.display = "block";
 
         plusButtonTime.addEventListener('click', addTimeRow);
         minusButtonTime.addEventListener('click', removeTimeRow);
@@ -181,7 +167,7 @@
                     scheduleId: 1
                 }
             };
-            const response = fetch('http://localhost:8080', {
+            fetch('http://localhost:8080', {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json'
@@ -189,8 +175,7 @@
                 body: JSON.stringify(newDay)
             }).then(response => {
                 if (response.ok) {
-                    if (col===table.rows[0].cells.length-2) {
-                        console.log("хуууууй");
+                    if (col === table.rows[0].cells.length - 2) {
                         let newRow = table.insertRow();
                         for (let i = 0; i < table.rows[0].cells.length - 1; i++) {
                             let currCell = newRow.insertCell();
@@ -222,7 +207,7 @@
                         scheduleTableArr.push(newRowArr);
                     }
                 } else {
-                    if (message.hidden){
+                    if (message.hidden) {
                         message.hidden = false;
                     }
                     message.style.color = "red";
@@ -241,18 +226,11 @@
         const table = document.getElementById('schedule');
         const rows = table.getElementsByTagName('tr');
 
-        console.log("до");
-        console.log(scheduleTableArr);
-
-        const lastRowIndex = table.rows.length - 1;
-
-        const timeToDelete = scheduleTableArr[lastRowIndex][0];
-        console.log(timeToDelete)
         scheduleTableArr.pop();
 
 
         for (let col = 2; col < table.rows[0].cells.length - 1; col++) {
-                fetch('http://localhost:8080', {
+            fetch('http://localhost:8080', {
                 method: 'DELETE',
                 headers: {
                     'Content-type': 'application/json'
@@ -261,11 +239,8 @@
             }).catch(error => {
                 console.error('Ошибка:', error);
             });
-                console.log("заебалась");
         }
         table.deleteRow(rows.length - 1);
-        console.log("после");
-        console.log(scheduleTableArr);
         if (table.rows.length < 3) {
             minusButtonTime.hidden = true;
         }
@@ -338,7 +313,6 @@
     function removeDay() {
         const table = document.getElementById("schedule");
         const rowsAmount = table.rows.length;
-        let dayToDelete;
         for (let i = 0; i < rowsAmount; i++) {
             table.rows[i].deleteCell(table.rows[i].cells.length - 2);
             scheduleTableArr[i].pop();
@@ -346,7 +320,7 @@
         }
 
 
-        dayToDelete = defaultDays.pop();
+        defaultDays.pop();
 
 
         fetch('http://localhost:8080', {
@@ -380,9 +354,6 @@
 
         let formsCounter = 0;
 
-        console.log("прошлый массив");
-        console.log(prevScheduleArr);
-
         let inputs = document.querySelectorAll('input[type="text"]');
 
 
@@ -401,9 +372,6 @@
 
 
         const message = document.getElementById("errorMessage");
-
-        console.log("проапдейченный массив");
-        console.log(scheduleTableArr);
 
 
         for (let row = 1; row < scheduleTableArr.length; row++) {
@@ -426,8 +394,6 @@
 
 
         if (totalUnsuccessfulRequests > 0) {
-            console.log("прошлый массив");
-            console.log(prevScheduleArr);
             for (let row = 0; row < table.rows.length; row++) {
                 for (let col = 0; col < table.rows[0].cells.length - 1; col++) {
                     let exDay =
@@ -453,26 +419,24 @@
                     })
                 }
             }
-            if (message.hidden){
-                message.hidden=false;
+            if (message.hidden) {
+                message.hidden = false;
             }
             message.style.color = "red";
             message.textContent = "Произошла ошибка! Проверьте корректность введенных данных";
 
         } else {
-            if (message.hidden){
-                message.hidden=false;
+            if (message.hidden) {
+                message.hidden = false;
             }
             message.style.color = "green";
             message.textContent = "Успешно сохранено!";
-            console.log(formsCounter);
             formsCounter = 0;
             outer: for (let row = 1; row < table.rows.length; row++) {
                 for (let col = 0; col < table.rows[0].cells.length - 1; col++) {
                     if (formsCounter >= inputs.length) {
                         break outer;
                     }
-                    console.log("пидор")
                     table.rows[row].cells[col].innerHTML = inputs[formsCounter].value;
                     formsCounter++;
                 }
@@ -484,6 +448,7 @@
             minusButtonDay.remove();
 
             editButton.hidden = false;
+            undoChangesButton.style.display = "none";
             saveButton.style.display = "none";
         }
 
@@ -491,7 +456,7 @@
     }
 
     async function getUnsuccessfulRequestsAmount(day, totalUnsuccessfulRequests) {
-        let response = await fetch('http://localhost:8080/', {
+        await fetch('http://localhost:8080/', {
             method: 'PUT',
             headers: {
                 'Content-type': 'application/json'
@@ -506,10 +471,29 @@
         return totalUnsuccessfulRequests;
     }
 
+    // function undoChanges () {
+    //     const table = document.getElementById("schedule");
+    //     table.remove();
+    //
+    //     const prevTable = document.createElement("table");
+    //
+    //
+    //     for (let r = 0; r < 2; r++) {
+    //         const row = prevTable.insertRow();
+    //         for (let c = 0; c < 3; c++) {
+    //            const cell = row.insertCell();
+    //             cell.textContent = origTableArr[r][c];
+    //         }
+    //     }
+    //
+    //     console.log(prevTable);
+    //     document.body.appendChild(prevTable);
+    //
+    // }
+
 
     document.getElementById('saveButton').addEventListener('click', saveChanges)
-
-    //TODO:  по сути осталось только сделать модальное окно (сразу же займусь этим хихи) и возможность вводить время в формате hh:mm и h:mm
+    //  document.getElementById('undoChangesButton').addEventListener('click', undoChanges)
 </script>
 
 </body>
