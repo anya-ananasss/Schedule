@@ -45,8 +45,12 @@ public class ScheduleController {
     }
     @Transactional
     @DeleteMapping()
-    public String deleteLastTime (){
-        singleDayService.deleteAllByTime(singleDayService.findLastEndTime());
+    public String deleteLastTime (@RequestBody Integer operationIndex){
+        if (operationIndex==0) {
+            singleDayService.deleteAllByTime(singleDayService.findLastEndTime());
+        } else {
+            singleDayService.deleteAllByDay(singleDayService.findLastDay());
+        }
         return "success";
     }
 
