@@ -42,16 +42,6 @@ public class SingleDayService {
         System.out.println("эй гайс у меня все найс");
     }
 
-
-    public DayOfWeek findLastDay() {
-        return repository.findLastDay();
-    }
-
-
-    public LocalTime findLastEndTime() { //TODO: я бы хотела поменять на использование startTime но тут все блять обрушится если я так сделаю
-        return repository.findMaxEndTime();
-    }
-
     public void saveChanges(SingleDay updatedSingleDay) {
         repository.save(updatedSingleDay);
     }
@@ -77,13 +67,7 @@ public class SingleDayService {
     public List<SingleDay.JointId> findAllIds () {
         return repository.findAllIds();
     }
-    public void deleteAllByTime(LocalTime time) {
-        repository.deleteAllByTime(time);
-    }
 
-    public void deleteAllByDay(DayOfWeek day) {
-        repository.deleteAllByDay(day);
-    }
 
 
 }
