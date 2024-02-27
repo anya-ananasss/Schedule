@@ -59,7 +59,9 @@ public class SingleDayService {
     public List<SingleDay> findAllSingleDays() {
         return repository.findAllOrdered();
     }
-
+    public void deleteAllById (SingleDay.JointId id){
+        repository.deleteAllById(id);
+    }
     public List<DayOfWeek> findAllDistinctDaysOfWeek() {
         return repository.findAllDistinctSingleDays();
     }
@@ -72,7 +74,9 @@ public class SingleDayService {
         return repository.findAllDistinctEndTimes();
     }
 
-
+    public List<SingleDay.JointId> findAllIds () {
+        return repository.findAllIds();
+    }
     public void deleteAllByTime(LocalTime time) {
         repository.deleteAllByTime(time);
     }

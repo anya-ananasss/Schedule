@@ -50,6 +50,12 @@ public class ScheduleController {
     }
 
     @ResponseBody
+    @GetMapping("/get_db_content")
+    public List<SingleDay.JointId> findAllIds() {
+        return singleDayService.findAllIds();
+    }
+
+    @ResponseBody
     @PostMapping()
     public void examineNewTimeValues(@RequestBody SingleDay singleDay) {
         LocalTime startTime = singleDay.getId().getStartTime();
@@ -67,25 +73,10 @@ public class ScheduleController {
     @ResponseBody
     @Transactional
     @DeleteMapping()
-    public void deleteLastTime(@RequestBody Integer operationIndex, @RequestBody(required = false) SingleDay singleDayToDelete) {
-        if (singleDayToDelete == null) {
-            if (operationIndex == 0) {
-                singleDayService.deleteAllByTime(singleDayService.findLastEndTime());
-            } else if (operationIndex == 1) {
-                singleDayService.deleteAllByDay(singleDayService.findLastDay());
-            }
-        } else {
-            if (operationIndex == 0) {
-                singleDayService.deleteAllByTime(singleDayToDelete.getId().getEndTime());
-            } else if (operationIndex == 1) {
-                singleDayService.deleteAllByDay(singleDayToDelete.getId().getDay());
-            }
-
-        }
+    public void deleteSingleDay(@RequestBody SingleDay singleDayToDelete) {
+        singleDayService.deleteAllById(singleDayToDelete.getId());
     }
-
 }
-
 
 
 //TODO: в индексе забабахать возможность откатиться к прошлой версии - все содержимое таблицы чистится, таблица в базе данных тоже, и через fetch и в цикле все заполняется значениями из origTableArr

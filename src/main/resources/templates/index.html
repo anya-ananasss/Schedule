@@ -43,7 +43,6 @@
 <div>
     <button id="editButton">Редактировать</button>
     <button id="saveButton" style="display: none">Сохранить изменения</button>
-    <button id="undoChangesButton" style="display: none">Отменить изменения</button>
 
 </div>
 <div id="errorMessage"></div>
@@ -72,7 +71,6 @@
 
     const editButton = document.getElementById('editButton');
     const saveButton = document.getElementById("saveButton");
-    const undoChangesButton = document.getElementById("undoChangesButton");
 
     const plusButtonTime = document.createElement('button');
     const minusButtonTime = document.createElement('button');
@@ -86,8 +84,8 @@
         let formsCounter = 0;
 
         let currCell;
-        for (let j = 0; j < table.rows[0].cells.length - 1; j++) {
-            for (let i = 1; i < table.rows.length; i++) {
+        for (let i = 1; i < table.rows.length; i++) {
+            for (let j = 0; j < table.rows[0].cells.length - 1; j++) {
                 currCell = table.rows[i].cells[j];
                 const form = document.createElement("form");
                 form.id = "form" + formsCounter;
@@ -131,7 +129,6 @@
 
 
         editButton.hidden = true;
-        undoChangesButton.style.display = "block";
 
         plusButtonTime.addEventListener('click', addTimeRow);
         minusButtonTime.addEventListener('click', removeTimeRow);
@@ -139,6 +136,14 @@
         plusButtonDay.addEventListener('click', addDay);
         minusButtonDay.addEventListener('click', removeDay);
 
+        let inputForms = document.querySelectorAll('input[type="text"]');
+        for (let i = 0; i < inputForms.length; i++) {
+            inputForms[i].addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                }
+            });
+        }
     }
 
 
@@ -230,15 +235,6 @@
 
 
         for (let col = 2; col < table.rows[0].cells.length - 1; col++) {
-            fetch('http://localhost:8080', {
-                method: 'DELETE',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify(0)
-            }).catch(error => {
-                console.error('Ошибка:', error);
-            });
         }
         table.deleteRow(rows.length - 1);
         if (table.rows.length < 3) {
@@ -251,7 +247,6 @@
         const table = document.getElementById("schedule");
         const rows = table.rows;
         const presentDaysAm = defaultDays.length;
-        let newDayName = allDays[presentDaysAm];
         let currCell;
         for (let i = 0; i < rows.length; i++) {
 
@@ -285,29 +280,6 @@
         } else if (defaultDays.length > 0) {
             minusButtonDay.hidden = false;
         }
-
-        for (let row = 1; row < table.rows.length; row++) {
-            let newDay = {
-                id: {
-                    startTime: scheduleTableArr[row][0],
-                    endTime: scheduleTableArr[row][1],
-                    day: newDayName,
-                },
-                content: "",
-                schedule: {
-                    scheduleId: 1
-                }
-            }
-            fetch('http://localhost:8080', {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                body: JSON.stringify(newDay)
-            });
-        }
-
-
     }
 
     function removeDay() {
@@ -322,14 +294,6 @@
 
         defaultDays.pop();
 
-
-        fetch('http://localhost:8080', {
-            method: 'DELETE',
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: JSON.stringify(1)
-        });
         if (defaultDays.length === 1) {
             minusButtonDay.hidden = true;
         } else if (defaultDays.length < 7) {
@@ -337,19 +301,32 @@
         }
     }
 
-    async function saveChanges() {
-        const prevScheduleArr = new Array(scheduleTableArr.length);
-        for (let row = 0; row < scheduleTableArr.length; row++) {
-            prevScheduleArr[row] = new Array(scheduleTableArr[0].length);
-        }
-        for (let row = 0; row < prevScheduleArr.length; row++) {
-            for (let col = 0; col < prevScheduleArr[0].length; col++) {
-                prevScheduleArr[row][col] = scheduleTableArr[row][col];
-            }
-        }
+    function saveChanges() {
 
+        const totalUnsuccessfulRequests = saveChanges_db();
+
+        saveChanges_interface(totalUnsuccessfulRequests);
+
+    }
+
+    async function getUnsuccessfulRequestsAmount(day, totalUnsuccessfulRequests) {
+        await fetch('http://localhost:8080/', {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify(day)
+        }).then(response => {
+            if (!response.ok) {
+                totalUnsuccessfulRequests++;
+            }
+        });
+
+        return totalUnsuccessfulRequests;
+    }
+
+    function saveChanges_interface(totalUnsuccessfulRequests) {
         const table = document.getElementById("schedule");
-        let totalUnsuccessfulRequests = 0;
 
 
         let formsCounter = 0;
@@ -359,8 +336,6 @@
 
         for (let row = 0; row < table.rows.length; row++) {
             for (let col = 0; col < table.rows[0].cells.length - 1; col++) {
-
-
                 if (row === 0) {
                     scheduleTableArr[row][col] = table.rows[row].cells[col].innerHTML;
                 } else {
@@ -370,55 +345,9 @@
             }
         }
 
-
         const message = document.getElementById("errorMessage");
 
-
-        for (let row = 1; row < scheduleTableArr.length; row++) {
-            for (let col = 2; col < scheduleTableArr[0].length; col++) {
-                let day = {
-                    id: {
-                        startTime: scheduleTableArr[row][0],
-                        endTime: scheduleTableArr[row][1],
-                        day: scheduleTableArr[0][col],
-                    },
-                    content: scheduleTableArr[row][col],
-                    schedule: {
-                        scheduleId: 1
-                    }
-                }
-
-                totalUnsuccessfulRequests += await getUnsuccessfulRequestsAmount(day, totalUnsuccessfulRequests);
-            }
-        }
-
-
         if (totalUnsuccessfulRequests > 0) {
-            for (let row = 0; row < table.rows.length; row++) {
-                for (let col = 0; col < table.rows[0].cells.length - 1; col++) {
-                    let exDay =
-                        {
-                            id: {
-                                startTime: prevScheduleArr[row][0],
-                                endTime: prevScheduleArr[row][1],
-                                day: prevScheduleArr[0][col],
-                            },
-                            content: prevScheduleArr[row][col],
-                            schedule: {
-                                scheduleId: 1
-                            }
-                        }
-
-
-                    fetch('http://localhost:8080/', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-type': 'application/json'
-                        },
-                        body: JSON.stringify(exDay)
-                    })
-                }
-            }
             if (message.hidden) {
                 message.hidden = false;
             }
@@ -448,52 +377,114 @@
             minusButtonDay.remove();
 
             editButton.hidden = false;
-            undoChangesButton.style.display = "none";
             saveButton.style.display = "none";
+        }
+    }
+
+    async function saveChanges_db() {
+        let dbSingleDays;
+
+        let totalUnsuccessfulRequests = 0;
+
+
+        for (let row = 1; row < scheduleTableArr.length; row++) {
+            for (let col = 2; col < scheduleTableArr[0].length; col++) {
+                let day = {
+                    id: {
+                        startTime: scheduleTableArr[row][0],
+                        endTime: scheduleTableArr[row][1],
+                        day: scheduleTableArr[0][col],
+                    },
+                    content: scheduleTableArr[row][col],
+                    schedule: {
+                        scheduleId: 1
+                    }
+                }
+
+                totalUnsuccessfulRequests += await getUnsuccessfulRequestsAmount(day, totalUnsuccessfulRequests);
+            }
         }
 
 
-    }
+        await fetch('http://localhost:8080/get_db_content')
+            .then(response => response.json())
+            .then(data => {
+                dbSingleDays = data;
+            })
+            .catch(error => console.error('Ошибка:', error));
 
-    async function getUnsuccessfulRequestsAmount(day, totalUnsuccessfulRequests) {
-        await fetch('http://localhost:8080/', {
-            method: 'PUT',
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: JSON.stringify(day)
-        }).then(response => {
-            if (!response.ok) {
-                totalUnsuccessfulRequests++;
+        for (let i = 0; i < dbSingleDays.length; i++) {
+            let startTimeFromDatabase = dbSingleDays[i].startTime;
+            let endTimeFromDatabase = dbSingleDays[i].endTime;
+
+            let startTimeParts = startTimeFromDatabase.split(':');
+            let endTimeParts = endTimeFromDatabase.split(':');
+
+
+            dbSingleDays[i].startTime = startTimeParts.slice(0, 2).join(':');
+            dbSingleDays[i].endTime = endTimeParts.slice(0, 2).join(':');
+
+        }
+
+
+        let doNotRemove = [];
+        for (let row = 1; row < scheduleTableArr.length; row++) {
+            for (let col = 2; col < scheduleTableArr[0].length; col++) {
+                for (let dbElement = 0; dbElement < dbSingleDays.length; dbElement++) {
+                    if (dbSingleDays[dbElement].startTime === scheduleTableArr[row][0] &&
+                        dbSingleDays[dbElement].endTime === scheduleTableArr[row][1] &&
+                        dbSingleDays[dbElement].day === scheduleTableArr[0][col]) {
+                        doNotRemove.push(dbSingleDays[dbElement]);
+                        break;
+                    }
+                }
             }
-        });
+        }
+        removeDeletedCellsFromDb(dbSingleDays, doNotRemove);
+
 
         return totalUnsuccessfulRequests;
     }
 
-    // function undoChanges () {
-    //     const table = document.getElementById("schedule");
-    //     table.remove();
-    //
-    //     const prevTable = document.createElement("table");
-    //
-    //
-    //     for (let r = 0; r < 2; r++) {
-    //         const row = prevTable.insertRow();
-    //         for (let c = 0; c < 3; c++) {
-    //            const cell = row.insertCell();
-    //             cell.textContent = origTableArr[r][c];
-    //         }
-    //     }
-    //
-    //     console.log(prevTable);
-    //     document.body.appendChild(prevTable);
-    //
-    // }
+    function removeDeletedCellsFromDb(db, doNotRemove) {
+        for (let DNRindex = 0; DNRindex < doNotRemove.length; DNRindex++) {
+
+            for (let dbIndex = 0; dbIndex < db.length; dbIndex++) {
+                if (db[dbIndex] === doNotRemove[DNRindex]) {
+                    db.splice(dbIndex, 1);
+                    break;
+                }
+            }
+        }
+
+
+        for (let dbIndex = 0; dbIndex < db.length; dbIndex++) {
+            let day = {
+                id: {
+                    startTime: db[dbIndex].startTime,
+                    endTime: db[dbIndex].endTime,
+                    day: db[dbIndex].day
+                }
+            }
+
+            fetch('http://localhost:8080', {
+                method: 'DELETE',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify(day)
+            }).then(response => {
+                if (response.ok) {
+                    console.log("я скуф....");
+                }
+            });
+        }
+    }
 
 
     document.getElementById('saveButton').addEventListener('click', saveChanges)
-    //  document.getElementById('undoChangesButton').addEventListener('click', undoChanges)
+
+
 </script>
 
 </body>
