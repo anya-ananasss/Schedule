@@ -43,6 +43,7 @@
 <div>
     <button id="editButton">Редактировать</button>
     <button id="saveButton" style="display: none">Сохранить изменения</button>
+    <button id="undoChangesButton" style="display: none">Отменить изменения</button>
 
 </div>
 <div id="errorMessage"></div>
@@ -71,6 +72,7 @@
 
     const editButton = document.getElementById('editButton');
     const saveButton = document.getElementById("saveButton");
+    const undoChangesButton = document.getElementById("undoChangesButton");
 
     const plusButtonTime = document.createElement('button');
     const minusButtonTime = document.createElement('button');
@@ -79,7 +81,18 @@
     const minusButtonDay = document.createElement('button');
 
     function startEditing() {
+        for (let i = 0; i < scheduleTable.rows.length; i++) {
+            origTableArr[i] = new Array(scheduleTable.rows[0].cells.length - 1);
+        }
+
+        for (let i = 0; i < scheduleTable.rows.length; i++) {
+            for (let j = 0; j < scheduleTable.rows[0].cells.length - 1; j++) {
+                origTableArr[i][j] = scheduleTable.rows[i].cells[j].innerHTML;
+            }
+        }
+
         saveButton.style.display = "block";
+        undoChangesButton.style.display = "none";
         const table = document.getElementById('schedule');
         let formsCounter = 0;
 
@@ -303,9 +316,9 @@
 
     function saveChanges() {
 
-        const totalUnsuccessfulRequests = saveChanges_db();
+        const totalUnsuccessfulRequests = saveChanges_db(scheduleTableArr);
 
-        saveChanges_interface(totalUnsuccessfulRequests);
+        saveChanges_interface(totalUnsuccessfulRequests, true);
 
     }
 
@@ -325,77 +338,103 @@
         return totalUnsuccessfulRequests;
     }
 
-    function saveChanges_interface(totalUnsuccessfulRequests) {
+    function saveChanges_interface(totalUnsuccessfulRequests, savingNewSchedule) {
         const table = document.getElementById("schedule");
 
+        if (savingNewSchedule) {
+            let formsCounter = 0;
 
-        let formsCounter = 0;
-
-        let inputs = document.querySelectorAll('input[type="text"]');
+            let inputs = document.querySelectorAll('input[type="text"]');
 
 
-        for (let row = 0; row < table.rows.length; row++) {
-            for (let col = 0; col < table.rows[0].cells.length - 1; col++) {
-                if (row === 0) {
-                    scheduleTableArr[row][col] = table.rows[row].cells[col].innerHTML;
-                } else {
-                    scheduleTableArr[row][col] = inputs[formsCounter].value;
-                    formsCounter++;
-                }
-            }
-        }
-
-        const message = document.getElementById("errorMessage");
-
-        if (totalUnsuccessfulRequests > 0) {
-            if (message.hidden) {
-                message.hidden = false;
-            }
-            message.style.color = "red";
-            message.textContent = "Произошла ошибка! Проверьте корректность введенных данных";
-
-        } else {
-            if (message.hidden) {
-                message.hidden = false;
-            }
-            message.style.color = "green";
-            message.textContent = "Успешно сохранено!";
-            formsCounter = 0;
-            outer: for (let row = 1; row < table.rows.length; row++) {
+            for (let row = 0; row < table.rows.length; row++) {
                 for (let col = 0; col < table.rows[0].cells.length - 1; col++) {
-                    if (formsCounter >= inputs.length) {
-                        break outer;
+                    if (row === 0) {
+                        scheduleTableArr[row][col] = table.rows[row].cells[col].innerHTML;
+                    } else {
+                        scheduleTableArr[row][col] = inputs[formsCounter].value;
+                        formsCounter++;
                     }
-                    table.rows[row].cells[col].innerHTML = inputs[formsCounter].value;
-                    formsCounter++;
                 }
             }
-            plusButtonTime.remove();
-            minusButtonTime.remove();
+            const message = document.getElementById("errorMessage");
 
-            plusButtonDay.remove();
-            minusButtonDay.remove();
+            if (totalUnsuccessfulRequests > 0) {
 
-            editButton.hidden = false;
-            saveButton.style.display = "none";
+                if (message.hidden) {
+                    message.hidden = false;
+                }
+                message.style.color = "red";
+                message.textContent = "Произошла ошибка! Проверьте корректность введенных данных";
+
+
+            } else {
+                if (message.hidden) {
+                    message.hidden = false;
+                }
+                message.style.color = "green";
+                message.textContent = "Успешно сохранено!";
+                outer: for (let row = 1; row < table.rows.length; row++) {
+                    for (let col = 0; col < table.rows[0].cells.length - 1; col++) {
+                        if (formsCounter >= inputs.length) {
+                            break outer;
+                        }
+                        table.rows[row].cells[col].innerHTML = inputs[formsCounter].value;
+                        formsCounter++;
+                    }
+                }
+                plusButtonTime.remove();
+                minusButtonTime.remove();
+
+                plusButtonDay.remove();
+                minusButtonDay.remove();
+
+                editButton.hidden = false;
+                saveButton.style.display = "none";
+                undoChangesButton.style.display = "block";
+            }
+        } else {
+            if (table.rows.length < origTableArr.length) {
+                let newRow = table.insertRow();
+                for (let i = 0; i < table.rows[0].cells.length - 1; i++) {
+                    newRow.insertCell();
+                }
+            }
+
+
+            if (table.rows[0].cells.length - 1 < origTableArr[0].length) {
+                addDay();
+            }
+            if (table.rows.length > origTableArr.length) {
+                removeTimeRow();
+            }
+            if (table.rows[0].cells.length - 1 > origTableArr[0].length) {
+                removeDay();
+            }
+            for (let row = 1; row < table.rows.length; row++) {
+                for (let col = 0; col < table.rows[0].cells.length - 1; col++) {
+                    table.rows[row].cells[col].innerHTML = origTableArr[row][col];
+                }
+            }
+
         }
     }
 
-    async function saveChanges_db() {
+    async function saveChanges_db(tableArr) {
         let dbSingleDays;
 
         let totalUnsuccessfulRequests = 0;
 
 
-        for (let row = 1; row < scheduleTableArr.length; row++) {
-            for (let col = 2; col < scheduleTableArr[0].length; col++) {
+        for (let row = 1; row < tableArr.length; row++) {
+            for (let col = 2; col < tableArr[0].length; col++) {
                 let day = {
                     id: {
-                        startTime: scheduleTableArr[row][0],
-                        endTime: scheduleTableArr[row][1],
-                        day: scheduleTableArr[0][col],
+                        startTime: tableArr[row][0],
+                        endTime: tableArr[row][1],
+                        day: tableArr[0][col],
                     },
-                    content: scheduleTableArr[row][col],
+                    content: tableArr[row][col],
                     schedule: {
                         scheduleId: 1
                     }
@@ -428,12 +467,12 @@
 
 
         let doNotRemove = [];
-        for (let row = 1; row < scheduleTableArr.length; row++) {
-            for (let col = 2; col < scheduleTableArr[0].length; col++) {
+        for (let row = 1; row < tableArr.length; row++) {
+            for (let col = 2; col < tableArr[0].length; col++) {
                 for (let dbElement = 0; dbElement < dbSingleDays.length; dbElement++) {
-                    if (dbSingleDays[dbElement].startTime === scheduleTableArr[row][0] &&
-                        dbSingleDays[dbElement].endTime === scheduleTableArr[row][1] &&
-                        dbSingleDays[dbElement].day === scheduleTableArr[0][col]) {
+                    if (dbSingleDays[dbElement].startTime === tableArr[row][0] &&
+                        dbSingleDays[dbElement].endTime === tableArr[row][1] &&
+                        dbSingleDays[dbElement].day === tableArr[0][col]) {
                         doNotRemove.push(dbSingleDays[dbElement]);
                         break;
                     }
@@ -481,8 +520,15 @@
         }
     }
 
+    function undoChanges() {
+        const totalUnsuccessfulRequests = saveChanges_db(origTableArr);
+        saveChanges_interface(totalUnsuccessfulRequests, false);
+        undoChangesButton.style.display = "none";
+    }
+
 
     document.getElementById('saveButton').addEventListener('click', saveChanges)
+    document.getElementById('undoChangesButton').addEventListener('click', undoChanges)
 
 
 </script>
